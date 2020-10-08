@@ -5,20 +5,20 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"log"
+	"github.com/lixiangyun/youtube_download/youtube"
+	"golang.org/x/net/http/httpproxy"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strconv"
 	"time"
-	"github.com/lixiangyun/youtube_download/youtube"
 
 	ytdl "github.com/lixiangyun/youtube_download/youtube/downloader"
 	"github.com/olekukonko/tablewriter"
-	"golang.org/x/net/proxy"
 )
 
 const usageString string = `Usage: youtubedr [OPTION] [URL]
@@ -30,10 +30,9 @@ var (
 	outputFile         string
 	outputDir          string
 	outputQuality      string
-	socks5Proxy        string
+	httpProxy          string
 	itag               int
 	info               bool
-	insecureSkipVerify bool
 )
 
 func main() {
@@ -43,21 +42,26 @@ func main() {
 	}
 }
 
+var proxyfunc func(reqURL *url.URL) (*url.URL, error)
+
+func ProxyFunc(r *http.Request) (*url.URL, error)  {
+	return proxyfunc(r.URL)
+}
+
 func run() error {
 	flag.Usage = func() {
 		fmt.Println(usageString)
 		flag.PrintDefaults()
 	}
+
 	usr, _ := user.Current()
 	flag.StringVar(&outputFile, "o", "", "The output file")
-	flag.StringVar(&outputDir, "d",
-		filepath.Join(usr.HomeDir, "Movies", "youtubedr"),
+	flag.StringVar(&outputDir, "d", filepath.Join(usr.HomeDir, "Movies", "youtubedr"),
 		"The output directory.")
 	flag.StringVar(&outputQuality, "q", "", "The output file quality (hd720, medium)")
-	flag.StringVar(&socks5Proxy, "p", "", "The Socks 5 proxy, e.g. 10.10.10.10:7878")
+	flag.StringVar(&httpProxy, "p", "http://127.0.0.1:8080", "The http proxy, e.g. 127.0.0.1:8080")
 	flag.IntVar(&itag, "i", -1, "Specify itag number, e.g. 13, 17")
 	flag.BoolVar(&info, "info", false, "show info of video")
-	flag.BoolVar(&insecureSkipVerify, "insecure-skip-tls-verify", false, "skip server certificate verification")
 
 	flag.Parse()
 
@@ -66,43 +70,29 @@ func run() error {
 		return nil
 	}
 
+	proxycfg := &httpproxy.Config{HTTPProxy: httpProxy, HTTPSProxy: httpProxy}
+
+	proxyfunc = proxycfg.ProxyFunc()
+
 	httpTransport := &http.Transport{
 		IdleConnTimeout:       60 * time.Second,
 		TLSHandshakeTimeout:   10 * time.Second,
 		ExpectContinueTimeout: 1 * time.Second,
-		Proxy: http.ProxyFromEnvironment,
-	}
-
-	if socks5Proxy != "" {
-		log.Println("Using SOCKS5 proxy", socks5Proxy)
-		dialer, err := proxy.SOCKS5("tcp", socks5Proxy, nil, proxy.Direct)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "can't connect to the proxy:", err)
-			os.Exit(1)
-		}
-
-		// set our socks5 as the dialer
-		dc := dialer.(interface {
-			DialContext(ctx context.Context, network, addr string) (net.Conn, error)
-		})
-		httpTransport.DialContext = dc.DialContext
-	} else {
-		httpTransport.DialContext = (&net.Dialer{
+		Proxy: ProxyFunc,
+		DialContext: (&net.Dialer{
 			Timeout:   30 * time.Second,
 			KeepAlive: 30 * time.Second,
-		}).DialContext
+		}).DialContext,
+		TLSClientConfig : &tls.Config{
+			InsecureSkipVerify: true,
+		},
 	}
 
-	if insecureSkipVerify {
-		log.Println("Skip server certificate verification")
-		httpTransport.TLSClientConfig = &tls.Config{
-			InsecureSkipVerify: true,
-		}
-	}
 
 	dl := ytdl.Downloader{
 		OutputDir: outputDir,
 	}
+
 	dl.HTTPClient = &http.Client{Transport: httpTransport}
 
 	arg := flag.Arg(0)
