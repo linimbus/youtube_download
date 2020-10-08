@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/lixiangyun/youtube_download/youtube/v2"
+	"github.com/lixiangyun/youtube_download/youtube"
 )
 
 //ExampleDownload : Example code for how to use this package for download video.

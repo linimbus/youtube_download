@@ -1,0 +1,37 @@
+# github.com/VividCortex/ewma v1.1.1
+## explicit
+github.com/VividCortex/ewma
+# github.com/davecgh/go-spew v1.1.0
+github.com/davecgh/go-spew/spew
+# github.com/mattn/go-isatty v0.0.12
+## explicit
+github.com/mattn/go-isatty
+# github.com/mattn/go-runewidth v0.0.7
+github.com/mattn/go-runewidth
+# github.com/olekukonko/tablewriter v0.0.4
+## explicit
+github.com/olekukonko/tablewriter
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/testify v1.6.1
+## explicit
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/require
+# github.com/vbauerster/mpb v3.4.0+incompatible
+## explicit
+github.com/vbauerster/mpb
+github.com/vbauerster/mpb/cwriter
+github.com/vbauerster/mpb/decor
+github.com/vbauerster/mpb/internal
+# golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+golang.org/x/crypto/ssh/terminal
+# golang.org/x/net v0.0.0-20201006153459-a7d1128ccaa0
+## explicit
+golang.org/x/net/internal/socks
+golang.org/x/net/proxy
+# golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+gopkg.in/yaml.v3
