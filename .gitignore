@@ -1,0 +1,6 @@
+/.idea
+/.vscode
+/bin
+/dist
+*.out
+*.exe
