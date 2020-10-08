@@ -48,6 +48,23 @@ func ProxyFunc(r *http.Request) (*url.URL, error)  {
 	return proxyfunc(r.URL)
 }
 
+func newTransport(timeout int, tlscfg *tls.Config) *http.Transport {
+	tmout := time.Duration(timeout) * time.Second
+	return &http.Transport{
+		TLSClientConfig: tlscfg,
+		DialContext: (&net.Dialer{
+			Timeout:   tmout,
+			KeepAlive: tmout,
+			DualStack: true,
+		}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          1000,
+		IdleConnTimeout:       3*tmout,
+		TLSHandshakeTimeout:   tmout,
+		ExpectContinueTimeout: 5*time.Second }
+}
+
+
 func run() error {
 	flag.Usage = func() {
 		fmt.Println(usageString)
@@ -74,20 +91,8 @@ func run() error {
 
 	proxyfunc = proxycfg.ProxyFunc()
 
-	httpTransport := &http.Transport{
-		IdleConnTimeout:       60 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-		Proxy: ProxyFunc,
-		DialContext: (&net.Dialer{
-			Timeout:   30 * time.Second,
-			KeepAlive: 30 * time.Second,
-		}).DialContext,
-		TLSClientConfig : &tls.Config{
-			InsecureSkipVerify: true,
-		},
-	}
-
+	httpTransport := newTransport(60, nil)
+	httpTransport.Proxy = ProxyFunc
 
 	dl := ytdl.Downloader{
 		OutputDir: outputDir,

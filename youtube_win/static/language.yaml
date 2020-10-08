@@ -1,0 +1,292 @@
+- key: language
+  value:
+  - 简体中文
+  - English
+- key: langname
+  value:
+  - 语言
+  - Language
+- key: user
+  value:
+  - 用户
+  - User
+- key: password
+  value:
+  - 密码
+  - Password
+- key: delete
+  value:
+  - 删除
+  - Delete
+- key: accpet
+  value:
+  - 确认
+  - OK
+- key: settingsuccess
+  value:
+  - Internet代理设置成功
+  - Internet Setting Proxy Setup Successful
+- key: find
+  value:
+  - 查找
+  - Find
+- key: syncaddress
+  value:
+  - 同步服务地址
+  - Synchronous Proxy Server Address
+- key: nochoiceobject
+  value:
+  - 未选中删除对象
+  - Delete object not selected
+- key: findkey
+  value:
+  - 关键字
+  - Find Key
+- key: nofindkey
+  value:
+  - 请输入查找关键字
+  - Please enter search keywords
+- key: inputdomain
+  value:
+  - 请输入匹配域名
+  - Please enter the matching domain name
+- key: cancel
+  value:
+  - 取消
+  - Cancel
+- key: save
+  value:
+  - 保存
+  - Save
+- key: test
+  value:
+  - 测试
+  - Test
+- key: localproxy
+  value:
+  - 本地代理
+  - LocalProxy
+- key: remoteproxy
+  value:
+  - 二级代理
+  - RemoteProxy
+- key: basesetting
+  value:
+  - 基本配置
+  - Setting
+- key: setting
+  value:
+  - 配置
+  - Setting
+- key: exit
+  value:
+  - 退出
+  - Exit
+- key: about
+  value:
+  - 关于
+  - About
+- key: viewcred
+  value:
+  - 查看凭证
+  - ViewAuth
+- key: addauthcert
+  value:
+  - 无有效凭证
+  - No valid certificate
+- key: addcred
+  value:
+  - 添加凭证
+  - AddAuth
+- key: authcred
+  value:
+  - 认证凭证
+  - AuthCred
+- key: miniwin
+  value:
+  - 最小化窗口
+  - MiniWindows
+- key: runningstatus
+  value:
+  - 运行状态
+  - RuningStatus
+- key: normal
+  value:
+  - 正常
+  - Normal
+- key: requestcount
+  value:
+  - 请求次数
+  - RequestCount
+- key: totalflow
+  value:
+  - 总体流量
+  - TotalTraffic
+- key: realtimeflow
+  value:
+  - 实时流量
+  - RealTimeTraffic
+- key: autoforward
+  value:
+  - 自动转发
+  - AutoForward
+- key: localforward
+  value:
+  - 本地转发
+  - LocalForward
+- key: globalforward
+  value:
+  - 全局转发
+  - GlobalForward
+- key: localaddress
+  value:
+  - 本地地址
+  - LocalAddress
+- key: remoteaddress
+  value:
+  - 代理地址
+  - RemoteAddress
+- key: addsuccess
+  value:
+  - 添加成功
+  - Add Success
+- key: port
+  value:
+  - 端口
+  - Port
+- key: version
+  value:
+  - 版本
+  - Version
+- key: mode
+  value:
+  - 代理模式
+  - Mode
+- key: protocal
+  value:
+  - 接入协议
+  - Protocol
+- key: tlsversion
+  value:
+  - 安全协议
+  - TlsVersion
+- key: whetherauth
+  value:
+  - 是否认证
+  - AuthSwitch
+- key: whetherauto
+  value:
+  - 默认启动
+  - AutoRunning
+- key: error
+  value:
+  - 错误
+  - Error
+- key: info
+  value:
+  - 提示
+  - Info
+- key: confirm
+  value:
+  - 请确认
+  - Confirm
+- key: start
+  value:
+  - 启动服务
+  - Start
+- key: stop
+  value:
+  - 停止服务
+  - Stop
+- key: deletesuccess
+  value:
+  - 删除成功
+  - Delete success
+- key: nochoice
+  value:
+  - 未选中用户
+  - No Choice
+- key: confirmdelete
+  value:
+  - 确认是否删除
+  - Are you sure you want to delete
+- key: randomgen
+  value:
+  - 随机生成
+  - RandomGen
+- key: addsuccess
+  value:
+  - 添加成功
+  - Add Success
+- key: add
+  value:
+  - 添加
+  - Add
+- key: usernotexist
+  value:
+  - 用户不存在
+  - User does not exist
+- key: inputnameandaddress
+  value:
+  - 请输入名称和地址
+  - Please enter your remote name and address
+- key: inputuserandpasswd
+  value:
+  - 请输入用户名和密码
+  - Please enter your user name and password
+- key: userexist
+  value:
+  - 用户已经存在
+  - User already exists
+- key: officialweb
+  value:
+  - 官方网站
+  - Official website
+- key: rebootsetting
+  value:
+  - 重启后生效
+  - Settings take effect after restart
+- key: showwindows
+  value:
+  - 显示窗口
+  - Show Windows
+- key: runlog
+  value:
+  - 运行日志
+  - Runlog
+- key: proxyserver
+  value:
+  - 代理服务
+  - ProxyServer
+- key: internetsettings
+  value:
+  - Internet设置
+  - Internet Settings
+- key: override
+  value:
+  - 例外网址
+  - Override
+- key: usingproxy
+  value:
+  - 使用代理
+  - UsingProxy
+- key: followlocalservice
+  value:
+  - 跟随服务
+  - Follow Service
+- key: testpass
+  value:
+  - 测试通过
+  - Test Pass
+- key: delay
+  value:
+  - 耗时
+  - Delay
+- key: forwarddomain
+  value:
+  - 转发域名
+  - Forward Domain
+- key: domain
+  value:
+  - 域名
+  - Domain
