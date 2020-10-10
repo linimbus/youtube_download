@@ -418,6 +418,76 @@
   - Ajouter à
   - Hinzufügen
   - Añadir
+- key: title
+  value:
+  - Title
+  - 标题
+  - 標題
+  - 題名
+  - 표제
+  - Titre
+  - Titel
+  - Título
+- key: progressrate
+  value:
+  - ProgressRate
+  - 进度
+  - 進度
+  - 進捗
+  - 진행률
+  - Taux de progression
+  - Fortschrittsrate
+  - Tasa de progreso
+- key: speed
+  value:
+  - Speed
+  - 速度
+  - 速度
+  - 速度
+  - 속도
+  - La vitesse
+  - Geschwindigkeit
+  - Velocidad
+- key: size
+  value:
+  - Size
+  - 大小
+  - 大小
+  - サイズ
+  - 크기
+  - Taille
+  - Größe
+  - Talla
+- key: from
+  value:
+  - From
+  - 来源
+  - 來源
+  - ソース
+  - 출처
+  - la source
+  - Von
+  - Desde
+- key: status
+  value:
+  - Status
+  - 状态
+  - 狀態
+  - 状態
+  - 상태
+  - statut
+  - Status
+  - estado
+- key: downloadlist
+  value:
+  - Download List
+  - 下载清单
+  - 下載清單
+  - ダウンロードリスト
+  - 목록 다운로드
+  - Télécharger la liste
+  - Liste herunterladen
+  - Lista de descargas
 - key: batchadd
   value:
   - Batch Add

@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-var mainWindowWidth = 430
-var mainWindowHeight = 250
+var mainWindowWidth = 700
+var mainWindowHeight = 400
 
 func ButtonWight() []Widget {
 	var start *walk.PushButton
@@ -20,12 +20,7 @@ func ButtonWight() []Widget {
 			AssignTo:  &start,
 			Text:      LangValue("start"),
 			OnClicked: func() {
-				copy, err := walk.Clipboard().Text()
-				if err != nil {
-					logs.Error("no ")
-				} else {
-					lineEdit.SetText(copy)
-				}
+
 			},
 		},
 		PushButton{
@@ -35,20 +30,6 @@ func ButtonWight() []Widget {
 			OnClicked: func() {
 
 			},
-		},
-	}
-}
-
-var lineEdit *walk.LineEdit
-
-func TableWight() []Widget {
-	return []Widget{
-		Label{
-			Text: "Url",
-		},
-		LineEdit{
-			ReadOnly: true,
-			AssignTo: &lineEdit,
 		},
 	}
 }
@@ -135,32 +116,25 @@ func mainWindowBuilder(mw **walk.MainWindow) *MainWindow {
 		Layout:  VBox{
 			Alignment: AlignHNearVNear,
 			MarginsZero: true,
-			Margins: Margins{Left: 5, Top: 5},
+			Margins: Margins{Left: 10, Top: 5},
 		},
 		MenuItems: MenuBarInit(),
 		StatusBarItems: StatusBarInit(),
 		Children: []Widget{
 			Composite{
-				Layout: Grid{Columns: 8},
+				Layout: VBox{MarginsZero: true},
 				Children: []Widget{
 					ToolBarInit(),
 				},
 			},
 			Composite{
-				Layout: Grid{Columns: 2},
-				Children: TableWight(),
-			},
-			Composite{
-				Layout: Grid{Columns: 2},
-				Children: ButtonWight(),
-			},
-			Composite{
-				Layout: Grid{Columns: 2},
-				Children: ButtonWight(),
-			},
-			Composite{
-				Layout: Grid{Columns: 2},
-				Children: ButtonWight(),
+				Layout: VBox{MarginsZero: true, Margins: Margins{Right: 10, Bottom: 10}},
+				Children: []Widget{
+					Label{
+						Text: LangValue("downloadlist"),
+					},
+					TableWight(),
+				},
 			},
 		},
 	}

@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/astaxie/beego/logs"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 )
 
 var toolBars *walk.ToolBar
-
 
 func ToolBarInit() ToolBar {
 	return ToolBar{
@@ -17,6 +17,14 @@ func ToolBarInit() ToolBar {
 			Action{
 				Text: LangValue("add"),
 				Image: ICON_TOOL_ADD,
+				OnTriggered: func() {
+					_, err := walk.Clipboard().Text()
+					if err != nil {
+						logs.Error("no ")
+					} else {
+						//lineEdit.SetText(copy)
+					}
+				},
 			},
 			Action{
 				Text: LangValue("batchadd"),

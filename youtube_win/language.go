@@ -69,7 +69,7 @@ func LangOptionSet(idx int)  {
 func LangValue(key string) string {
 	item, _ := langCtrl.cache[key]
 	if item == nil {
-		logs.Error("lang value %s fail", key)
+		logs.Error("find lang value not exist, key %s", key)
 		return ""
 	}
 	return item.Value[langCtrl.idx]

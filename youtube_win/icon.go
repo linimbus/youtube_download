@@ -82,7 +82,7 @@ var ICON_Max_Size = walk.Size{
 }
 
 var ICON_Tool_Size = walk.Size{
-	Width: 128, Height: 128,
+	Width: 64, Height: 64,
 }
 
 var ICON_Min_Size = walk.Size{
