@@ -35,22 +35,73 @@ func IconLoadFromBox(filename string, size walk.Size) *walk.Icon {
 	return icon
 }
 
+
+func IconLoadImageFromBox(filename string) walk.Image {
+	body, err := BoxFile().Bytes(filename)
+	if err != nil {
+		logs.Error(err.Error())
+		return nil
+	}
+	dir := DEFAULT_HOME + "\\image\\"
+	_, err = os.Stat(dir)
+	if err != nil {
+		err = os.MkdirAll(dir, 644)
+		if err != nil {
+			logs.Error(err.Error())
+			return nil
+		}
+	}
+	filepath := dir + filename
+	err = SaveToFile(filepath, body)
+	if err != nil {
+		logs.Error(err.Error())
+		return nil
+	}
+	image, err := walk.NewImageFromFile(filepath)
+	if err != nil {
+		logs.Error(err.Error())
+		return nil
+	}
+	return image
+}
+
 var ICON_Main          *walk.Icon
 var ICON_Main_Mini     *walk.Icon
 var ICON_Network_Flow  *walk.Icon
+
+var ICON_TOOL_ADD      *walk.Icon
+var ICON_TOOL_DEL      *walk.Icon
+var ICON_TOOL_DOWNLOAD *walk.Icon
+var ICON_TOOL_PLAY     *walk.Icon
+var ICON_TOOL_SETTING  *walk.Icon
+var ICON_TOOL_STOP     *walk.Icon
+var ICON_TOOL_RESERVE  *walk.Icon
 
 var ICON_Max_Size = walk.Size{
 	Width: 128, Height: 128,
 }
 
+var ICON_Tool_Size = walk.Size{
+	Width: 128, Height: 128,
+}
+
 var ICON_Min_Size = walk.Size{
-	Width: 32, Height: 32,
+	Width: 16, Height: 16,
 }
 
 func IconInit() error {
 	ICON_Main = IconLoadFromBox("main.ico", ICON_Max_Size)
 	ICON_Main_Mini = IconLoadFromBox("mainmini.ico", ICON_Min_Size)
 	ICON_Network_Flow = IconLoadFromBox("flow.ico", ICON_Min_Size)
+
+	ICON_TOOL_ADD = IconLoadFromBox("add.ico", ICON_Tool_Size)
+	ICON_TOOL_DEL = IconLoadFromBox("delete.ico", ICON_Tool_Size)
+	ICON_TOOL_DOWNLOAD = IconLoadFromBox("download.ico", ICON_Tool_Size)
+	ICON_TOOL_PLAY = IconLoadFromBox("play.ico", ICON_Tool_Size)
+	ICON_TOOL_SETTING = IconLoadFromBox("setting.ico", ICON_Tool_Size)
+	ICON_TOOL_STOP = IconLoadFromBox("stop.ico", ICON_Tool_Size)
+	ICON_TOOL_RESERVE = IconLoadFromBox("reserve.ico", ICON_Tool_Size)
+
 	return nil
 }
 

@@ -1,292 +1,560 @@
+- key: _tag_
+  value:
+  - 英语
+  - 简体中文
+  - 繁体中文
+  - 日语
+  - 韩语
+  - 法语
+  - 德语
+  - 西班牙
 - key: language
   value:
-  - 简体中文
   - English
+  - 简体中文
+  - 繁体中文
+  - 日本語
+  - 한국어
+  - français
+  - Deutsche
+  - Español
 - key: langname
   value:
-  - 语言
   - Language
+  - 语言
+  - 語言
+  - 言語
+  - 언어
+  - Langue
+  - Sprache
+  - Idioma
 - key: user
   value:
-  - 用户
   - User
+  - 用户
+  - 用戶
+  - ユーザー
+  - 사용자
+  - utilisateur
+  - Nutzer
+  - usuario
 - key: password
   value:
-  - 密码
   - Password
+  - 密码
+  - 密碼
+  - パスワード
+  - 암호
+  - mot de passe
+  - Passwort
+  - contraseña
 - key: delete
   value:
-  - 删除
   - Delete
+  - 删除
+  - 刪除
+  - 削除
+  - 지우다
+  - Effacer
+  - löschen
+  - Eliminar
 - key: accpet
   value:
-  - 确认
   - OK
-- key: settingsuccess
-  value:
-  - Internet代理设置成功
-  - Internet Setting Proxy Setup Successful
-- key: find
-  value:
-  - 查找
-  - Find
-- key: syncaddress
-  value:
-  - 同步服务地址
-  - Synchronous Proxy Server Address
-- key: nochoiceobject
-  value:
-  - 未选中删除对象
-  - Delete object not selected
-- key: findkey
-  value:
-  - 关键字
-  - Find Key
-- key: nofindkey
-  value:
-  - 请输入查找关键字
-  - Please enter search keywords
-- key: inputdomain
-  value:
-  - 请输入匹配域名
-  - Please enter the matching domain name
+  - 确认
+  - 確認
+  - 確認
+  - 확인
+  - confirmer
+  - bestätigen
+  - confirmar
 - key: cancel
   value:
-  - 取消
   - Cancel
+  - 取消
+  - 取消
+  - キャンセル
+  - 취소
+  - Annuler
+  - Stornieren
+  - Cancelar
 - key: save
   value:
-  - 保存
   - Save
+  - 保存
+  - 保存
+  - 保存する
+  - 저장
+  - sauvegarder
+  - speichern
+  - Salvar
 - key: test
   value:
-  - 测试
   - Test
+  - 测试
+  - 測試
+  - テスト
+  - 테스트
+  - Tester
+  - Test
+  - Prueba
+- key: find
+  value:
+  - Find
+  - 查找
+  - 查找
+  - 検索
+  - 찾기
+  - Trouver
+  - Finden
+  - Encontrar
+- key: syncaddress
+  value:
+  - Synchronous Proxy Server Address
+  - 同步服务地址
+  - 同步服務地址
+  - 同期サービスアドレス
+  - 서비스 주소 동기화
+  - Adresse du serveur proxy synchrone
+  - Serviceadresse synchronisieren
+  - Dirección del servidor proxy síncrono
+- key: nochoiceobject
+  value:
+  - Delete object not selected
+  - 未选中删除对象
+  - 未選中刪除對象
+  - オブジェクトの削除が選択されていません
+  - 개체 삭제가 선택되지 않았습니다.
+  - Supprimer l'objet non sélectionné
+  - Objekt löschen ist nicht ausgewählt
+  - Eliminar objeto no seleccionado
+- key: findkey
+  value:
+  - Find Key
+  - 关键字
+  - 關鍵字
+  - キーワード
+  - 예어
+  - Trouver la clé
+  - Stichwort
+  - Encontrar clave
+- key: nofindkey
+  value:
+  - Please enter search keywords
+  - 请输入查找关键字
+  - 請輸入查找關鍵字
+  - 検索キーワードを入力してください
+  - 검색 키워드를 입력하십시오
+  - Veuillez saisir des mots clés de recherche
+  - Bitte geben Sie Suchbegriffe ein
+  - Introduzca las palabras clave de búsqueda.
 - key: localproxy
   value:
-  - 本地代理
   - LocalProxy
-- key: remoteproxy
-  value:
-  - 二级代理
-  - RemoteProxy
+  - 本地代理
+  - 本地代理
+  - ローカルエージェント
+  - 현지 에이전트
+  - Agent local
+  - Lokaler Proxy
+  - Proxy local
 - key: basesetting
   value:
-  - 基本配置
   - Setting
+  - 基本配置
+  - 基本配置
+  - 基本構成
+  - 기본 구성
+  - configuration de base
+  - Rahmen
+  - Ajuste
 - key: setting
   value:
-  - 配置
   - Setting
+  - 配置
+  - 配置
+  - 構成
+  - 구성
+  - Configuration
+  - Rahmen
+  - Ajuste
 - key: exit
   value:
-  - 退出
   - Exit
+  - 退出
+  - 退出
+  - 出口
+  - 그만두 다
+  - abandonner
+  - Ausfahrt
+  - Salida
 - key: about
   value:
-  - 关于
   - About
-- key: viewcred
-  value:
-  - 查看凭证
-  - ViewAuth
-- key: addauthcert
-  value:
-  - 无有效凭证
-  - No valid certificate
-- key: addcred
-  value:
-  - 添加凭证
-  - AddAuth
-- key: authcred
-  value:
-  - 认证凭证
-  - AuthCred
+  - 关于
+  - 關於
+  - 約
+  - 의 위에
+  - sur
+  - Über
+  - Acerca de
 - key: miniwin
   value:
-  - 最小化窗口
   - MiniWindows
+  - 最小化窗口
+  - 最小化窗口
+  - ウィンドウを最小化
+  - 창 최소화
+  - Minimiser la fenêtre
+  - Fenster minimieren
+  - Mini ventanas
 - key: runningstatus
   value:
+  - Running Status
   - 运行状态
-  - RuningStatus
+  - 運行狀態
+  - 動作状態
+  - 작동 상태
+  - État de fonctionnement
+  - Betriebsstatus
+  - Estado de ejecución
 - key: normal
   value:
-  - 正常
   - Normal
-- key: requestcount
-  value:
-  - 请求次数
-  - RequestCount
+  - 正常
+  - 正常
+  - 正常
+  - 표준
+  - Ordinaire
+  - normal
+  - Normal
 - key: totalflow
   value:
+  - Total Traffic
   - 总体流量
-  - TotalTraffic
+  - 總體流量
+  - 全体の流れ
+  - 전반적인 흐름
+  - Flux global
+  - Gesamtverkehr
+  - Tráfico total
 - key: realtimeflow
   value:
+  - Real Time Traffic
   - 实时流量
-  - RealTimeTraffic
-- key: autoforward
-  value:
-  - 自动转发
-  - AutoForward
-- key: localforward
-  value:
-  - 本地转发
-  - LocalForward
-- key: globalforward
-  value:
-  - 全局转发
-  - GlobalForward
+  - 實時流量
+  - リアルタイムトラフィック
+  - 실시간 교통
+  - Trafic en temps réel
+  - Echtzeitverkehr
+  - Tráfico en tiempo real
 - key: localaddress
   value:
+  - Local Address
   - 本地地址
-  - LocalAddress
+  - 本地地址
+  - ローカルアドレス
+  - 현지 주소
+  - Adresse locale
+  - Lokale Adresse
+  - Dirección local
 - key: remoteaddress
   value:
+  - Remote Address
   - 代理地址
-  - RemoteAddress
+  - 代理地址
+  - プロキシアドレス
+  - 프록시 주소
+  - Adresse proxy
+  - Proxy-Adresse
+  - Dirección remota
 - key: addsuccess
   value:
-  - 添加成功
   - Add Success
+  - 添加成功
+  - 添加成功
+  - 正常に追加されました
+  - 성공적으로 추가되었습니다.
+  - Ajouté avec succès
+  - Erfolgreich hinzugefügt
+  - Agregar éxito
 - key: port
   value:
-  - 端口
   - Port
+  - 端口
+  - 端口
+  - ポート
+  - 포트
+  - Port
+  - Hafen
+  - Puerto
 - key: version
   value:
-  - 版本
   - Version
-- key: mode
-  value:
-  - 代理模式
-  - Mode
-- key: protocal
-  value:
-  - 接入协议
-  - Protocol
-- key: tlsversion
-  value:
-  - 安全协议
-  - TlsVersion
+  - 版本
+  - 版本
+  - バージョン
+  - 버전
+  - version
+  - Ausführung
+  - Versión
 - key: whetherauth
   value:
-  - 是否认证
   - AuthSwitch
+  - 是否认证
+  - 是否認證
+  - 認定されていますか
+  - 인증 되었나요?
+  - Est-ce certifié
+  - Ist es zertifiziert?
+  - Interruptor de autenticación
 - key: whetherauto
   value:
+  - Auto Running
   - 默认启动
-  - AutoRunning
+  - 默認啟動
+  - デフォルトで開始
+  - 기본적으로 시작
+  - Démarrer par défaut
+  - Standardmäßig starten
+  - Ejecución automática
 - key: error
   value:
+  - Error
   - 错误
+  - 錯誤
+  - エラー
+  - 오류
+  - Erreur
+  - Error
   - Error
 - key: info
   value:
+  - Info
   - 提示
+  - 提示
+  - 促す
+  - 신속한
+  - rapide
+  - prompt
   - Info
 - key: confirm
   value:
-  - 请确认
   - Confirm
+  - 请确认
+  - 請確認
+  - 確認してください
+  - 확인 해주세요
+  - Veuillez confirmer
+  - bitte bestätigen
+  - Confirmar
 - key: start
   value:
-  - 启动服务
   - Start
+  - 启动服务
+  - 啟動服務
+  - サービス開始
+  - 서비스 시작
+  - Démarrer le service
+  - Dienst starten
+  - Comienzo
 - key: stop
   value:
-  - 停止服务
   - Stop
+  - 停止服务
+  - 停止服務
+  - 仕事をやめる
+  - 서비스 중단
+  - Hors service
+  - Außer Betrieb
+  - Detener
 - key: deletesuccess
   value:
-  - 删除成功
   - Delete success
-- key: nochoice
-  value:
-  - 未选中用户
-  - No Choice
+  - 删除成功
+  - 刪除成功
+  - 正常に削除されました
+  - 성공적으로 삭제
+  - supprimé avec succès
+  - erfolgreich gelöscht
+  - Eliminar éxito
 - key: confirmdelete
   value:
-  - 确认是否删除
   - Are you sure you want to delete
+  - 确认是否删除
+  - 確認是否刪除
+  - 削除するかどうかを確認する
+  - 삭제 여부 확인
+  - Confirmez si vous souhaitez supprimer
+  - Bestätigen Sie, ob gelöscht werden soll
+  - Confirme si desea eliminar
 - key: randomgen
   value:
-  - 随机生成
   - RandomGen
+  - 随机生成
+  - 隨機生成
+  - ランダムに生成
+  - 무작위로 생성
+  - Généré aléatoirement
+  - Zufällig generiert
+  - Generado aleatoriamente
 - key: addsuccess
   value:
-  - 添加成功
   - Add Success
+  - 添加成功
+  - 添加成功
+  - 正常に追加されました
+  - 성공적으로 추가되었습니다.
+  - Ajouté avec succès
+  - Erfolgreich hinzugefügt
+  - Agregado exitosamente
 - key: add
   value:
-  - 添加
   - Add
-- key: usernotexist
+  - 添加
+  - 添加
+  - 追加
+  - 추가
+  - Ajouter à
+  - Hinzufügen
+  - Añadir
+- key: batchadd
   value:
-  - 用户不存在
-  - User does not exist
+  - Batch Add
+  - 批量添加
+  - 批量添加
+  - バッチ追加
+  - 일괄 추가
+  - Ajout par lots
+  - Charge hinzufügen
+  - Agregar lote
+- key: scheddownloadtime
+  value:
+  - Scheduled download time
+  - 预约下载时间
+  - 預約下載時間
+  - ダウンロード時間をスケジュールする
+  - 다운로드 시간 예약
+  - Programmer l'heure de téléchargement
+  - Planen Sie die Downloadzeit
+  - Programar tiempo de descarga
 - key: inputnameandaddress
   value:
-  - 请输入名称和地址
   - Please enter your remote name and address
-- key: inputuserandpasswd
-  value:
-  - 请输入用户名和密码
-  - Please enter your user name and password
-- key: userexist
-  value:
-  - 用户已经存在
-  - User already exists
+  - 请输入名称和地址
+  - 請輸入名稱和地址
+  - 名前と住所を入力してください
+  - 이름과 주소를 입력하세요
+  - Veuillez saisir le nom et l'adresse
+  - Bitte geben Sie Name und Adresse ein
+  - Ingrese nombre y dirección
 - key: officialweb
   value:
-  - 官方网站
   - Official website
+  - 官方网站
+  - 官方網站
+  - 公式ウェブサイト
+  - 공식 웹 사이트
+  - Site officiel
+  - Offizielle Website
+  - Página web oficial
 - key: rebootsetting
   value:
-  - 重启后生效
   - Settings take effect after restart
+  - 重启后生效
+  - 重啟後生效
+  - 再起動後に有効になります
+  - 다시 시작한 후 적용
+  - Prendre effet après le redémarrage
+  - Wirksam nach dem Neustart
+  - Tiene efecto después del reinicio
 - key: showwindows
   value:
-  - 显示窗口
   - Show Windows
+  - 显示窗口
+  - 顯示窗口
+  - 表示ウィンドウ
+  - 디스플레이 창
+  - Fenêtre d'affichage
+  - Anzeigefenster
+  - Ventana de visualización
 - key: runlog
   value:
-  - 运行日志
   - Runlog
-- key: proxyserver
-  value:
-  - 代理服务
-  - ProxyServer
-- key: internetsettings
-  value:
-  - Internet设置
-  - Internet Settings
-- key: override
-  value:
-  - 例外网址
-  - Override
+  - 运行日志
+  - 運行日誌
+  - 実行ログ
+  - 로그 실행
+  - Exécuter le journal
+  - Führen Sie das Protokoll aus
+  - Ejecutar registro
 - key: usingproxy
   value:
-  - 使用代理
   - UsingProxy
-- key: followlocalservice
-  value:
-  - 跟随服务
-  - Follow Service
+  - 使用代理
+  - 使用代理
+  - プロキシを使う
+  - 프록시 사용
+  - Utiliser un proxy
+  - Verwenden Sie einen Proxy
+  - Usa proxy
 - key: testpass
   value:
-  - 测试通过
   - Test Pass
+  - 测试通过
+  - 測試通過
+  - テストに合格
+  - 테스트 통과
+  - Test réussi
+  - Test bestanden
+  - Prueba aprobada
 - key: delay
   value:
-  - 耗时
   - Delay
-- key: forwarddomain
+  - 耗时
+  - 耗時
+  - 時間がかかる
+  - 시간 소모적
+  - Retard
+  - Verzögern
+  - Retrasar
+- key: aboutcontext
   value:
-  - 转发域名
-  - Forward Domain
-- key: domain
+  - "Disclaimer: This tool is licensed for use as a free software. The software copyright belongs to the author. The use and dissemination must comply with domestic laws and regulations. If any laws and regulations are violated, it has nothing to do with me; I am using this software for any reason to the user or others. We will not be liable for any loss or injury of any kind."
+  - "免责声明：该工具作为免费软件授权使用，软件著作权归作者所有，使用和传播必须符合国内法律法规，如果违反任何法律法规与本人无关；本人对于任何原因在使用本软件对用户自己或者他人造成的任何形式的损失和伤害不承担任何责任。"
+  - "免責聲明：該工具作為免費軟件授權使用，軟件著作權歸作者所有，使用和傳播必須符合國內法律法規，如果違反任何法律法規與本人無關；本人對於任何原因在使用本軟件對用戶自己或者他人造成的任何形式的損失和傷害不承擔任何責任。"
+  - "免責事項：このツールは無料ソフトウェアとしての使用が許可されています。ソフトウェアの著作権は作成者に帰属します。使用と配布は国内の法規制に準拠する必要があります。法規制に違反した場合、それは私とは関係ありません。私はユーザーまたは他の人に何らかの理由でこのソフトウェアを使用しています。 当社は、いかなる種類の損失または負傷に対しても責任を負いません。"
+  - "면책 조항 :이 도구는 무료 소프트웨어로 사용할 수 있도록 라이센스가 부여되었습니다. 소프트웨어 저작권은 작성자에게 있습니다. 사용 및 배포는 국내 법률 및 규정을 준수해야합니다. 법률 및 규정을 위반하는 경우 저와 아무 관련이 없습니다. 사용자 또는 다른 사람에게 어떤 이유로 든이 소프트웨어를 사용하고 있습니다. 우리는 어떠한 종류의 손실이나 부상에 대해서도 책임을지지 않습니다."
+  - "Clause de non-responsabilité: Cet outil est autorisé pour une utilisation en tant que logiciel libre. Le droit d'auteur du logiciel appartient à l'auteur. L'utilisation et la diffusion doivent être conformes aux lois et réglementations nationales. Si des lois et réglementations sont violées, cela n'a rien à voir avec moi; J'utilise ce logiciel pour quelque raison que ce soit pour l'utilisateur ou d'autres. Nous ne serons pas responsables de toute perte ou blessure de quelque nature que ce soit."
+  - "Haftungsausschluss: Dieses Tool ist für die Verwendung als freie Software lizenziert. Das Urheberrecht der Software liegt beim Autor. Die Verwendung und Verbreitung muss den nationalen Gesetzen und Vorschriften entsprechen. Wenn Gesetze und Vorschriften verletzt werden, hat dies nichts mit mir zu tun. Ich verwende diese Software aus irgendeinem Grund für den Benutzer oder andere. Wir haften nicht für Verluste oder Verletzungen jeglicher Art."
+  - "Descargo de responsabilidad: esta herramienta tiene licencia para su uso como software gratuito. Los derechos de autor del software pertenecen al autor. El uso y la difusión deben cumplir con las leyes y regulaciones nacionales. Si se viola alguna ley y regulación, no tiene nada que ver conmigo; estoy usando este software por cualquier motivo para el usuario o para otros. No seremos responsables de ninguna pérdida o lesión de ningún tipo."
+- key: alipay
   value:
-  - 域名
-  - Domain
+  - AliPay
+  - 支付宝
+  - 支付寶
+  - AliPay
+  - 알리 페이
+  - AliPay
+  - AliPay
+  - AliPay
+- key: wecartpay
+  value:
+  - WeChat Pay
+  - 微信支付
+  - 微信支付
+  - WeChat Pay
+  - 위챗 페이
+  - WeChat Pay
+  - WeChat Pay
+  - WeChat Pay
+- key: sponsor
+  value:
+  - Buy me a coffee
+  - 请作者喝咖啡
+  - 請作者喝咖啡
+  - 作者にコーヒーを飲むように勧める
+  - 저자에게 커피를 마시도록 초대
+  - Achetez-moi un café
+  - Bitten Sie den Autor, Kaffee zu trinken
+  - Invita al autor a tomar café

@@ -28,10 +28,10 @@ func main()  {
 		logs.Error(err.Error())
 		return
 	}
-
-	err = MainWindows()
+	err = MainWindowStart()
 	if err != nil {
 		logs.Error(err.Error())
 		return
 	}
+	MainWindowsExit()
 }

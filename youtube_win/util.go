@@ -17,6 +17,14 @@ func VersionGet() string {
 	return "v1.0.0"
 }
 
+func GetTimeStamp() string {
+	now := time.Now()
+	year, month, day := now.Date()
+	return fmt.Sprintf(
+		"%4d-%02d-%02d %02d:%02d:%02d",
+		year, month, day, now.Hour(), now.Minute(), now.Second())
+}
+
 func SaveToFile(name string, body []byte) error {
 	return ioutil.WriteFile(name, body, 0664)
 }
@@ -41,7 +49,7 @@ func GetUser(length int) string {
 
 func CapSignal(proc func())  {
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGKILL, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(signalChan, syscall.SIGKILL, syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT)
 
 	go func() {
 		sig := <- signalChan

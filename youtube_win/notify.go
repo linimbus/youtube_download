@@ -8,25 +8,11 @@ import (
 
 var notify *walk.NotifyIcon
 
-func NotifyUpdateIcon(icon *walk.Icon)  {
-	if notify == nil {
-		return
-	}
-	notify.SetIcon(icon)
-}
-
 func NotifyUpdateFlow(flow string)  {
 	if notify == nil {
 		return
 	}
 	notify.SetToolTip(flow)
-}
-
-func Notify()  {
-	if notify == nil {
-		NotifyInit()
-	}
-	mainWindow.SetVisible(false)
 }
 
 func NotifyExit()  {
@@ -39,10 +25,12 @@ func NotifyExit()  {
 
 var lastCheck time.Time
 
-func NotifyInit()  {
+func NotifyInit(mw *walk.MainWindow)  {
+	NotifyExit()
+
 	var err error
 
-	notify, err = walk.NewNotifyIcon(mainWindow)
+	notify, err = walk.NewNotifyIcon(mw)
 	if err != nil {
 		logs.Error("new notify icon fail, %s", err.Error())
 		return
@@ -73,7 +61,7 @@ func NotifyInit()  {
 	}
 
 	showBut.Triggered().Attach(func() {
-		mainWindow.SetVisible(true)
+		MainWindowsVisible(true)
 	})
 
 	if err := notify.ContextMenu().Actions().Add(showBut); err != nil {
@@ -92,7 +80,7 @@ func NotifyInit()  {
 		}
 		now := time.Now()
 		if now.Sub(lastCheck) < 2 * time.Second {
-			mainWindow.SetVisible(true)
+			MainWindowsVisible(true)
 		}
 		lastCheck = now
 	})
