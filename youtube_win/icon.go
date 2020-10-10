@@ -77,6 +77,12 @@ var ICON_TOOL_SETTING  *walk.Icon
 var ICON_TOOL_STOP     *walk.Icon
 var ICON_TOOL_RESERVE  *walk.Icon
 
+var ICON_STATUS_STOP  *walk.Icon
+var ICON_STATUS_DONE  *walk.Icon
+var ICON_STATUS_WAIT  *walk.Icon
+var ICON_STATUS_RESERVER  *walk.Icon
+var ICON_STATUS_LOAD  *walk.Icon
+
 var ICON_Max_Size = walk.Size{
 	Width: 128, Height: 128,
 }
@@ -101,6 +107,12 @@ func IconInit() error {
 	ICON_TOOL_SETTING = IconLoadFromBox("setting.ico", ICON_Tool_Size)
 	ICON_TOOL_STOP = IconLoadFromBox("stop.ico", ICON_Tool_Size)
 	ICON_TOOL_RESERVE = IconLoadFromBox("reserve.ico", ICON_Tool_Size)
+
+	ICON_STATUS_STOP = IconLoadFromBox("stop.ico", ICON_Min_Size)
+	ICON_STATUS_DONE = IconLoadFromBox("done.ico", ICON_Min_Size)
+	ICON_STATUS_WAIT = IconLoadFromBox("wait.ico", ICON_Min_Size)
+	ICON_STATUS_RESERVER = IconLoadFromBox("reserve.ico", ICON_Min_Size)
+	ICON_STATUS_LOAD = IconLoadFromBox("loading.ico", ICON_Min_Size)
 
 	return nil
 }

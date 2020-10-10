@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 	"math/rand"
@@ -44,7 +45,7 @@ func (n *JobModel)Value(row, col int) interface{} {
 	case 1:
 		return item.Title
 	case 2:
-		return fmt.Sprintf("%d%", item.ProgressRate)
+		return fmt.Sprintf("%d%%", item.ProgressRate)
 	case 3:
 		return fmt.Sprintf("%s/s", ByteViewLite(int64(item.Speed)))
 	case 4:
@@ -97,6 +98,26 @@ func (m *JobModel) Sort(col int, order walk.SortOrder) error {
 	return m.SorterBase.Sort(col, order)
 }
 
+func StatusToIcon(status string) walk.Image {
+	switch status {
+	case "stop":
+		return ICON_STATUS_STOP
+	case "done":
+		return ICON_STATUS_DONE
+	case "wait":
+		return ICON_STATUS_WAIT
+	case "reserver":
+		return ICON_STATUS_RESERVER
+	case "load":
+		return ICON_STATUS_LOAD
+	default:
+		return ICON_STATUS_WAIT
+	}
+	return nil
+}
+
+var jobBitmap *walk.Bitmap
+
 var jobTable *JobModel
 
 func JobTalbeUpdate()  {
@@ -107,9 +128,9 @@ func JobTalbeUpdate()  {
 			Title: GetTimeStamp(),
 			ProgressRate: rand.Int() % 100,
 			Speed: rand.Int() % 1048576 ,
-			Size: rand.Int() ,
+			Size: rand.Int() % 1048576000,
 			From: "youtube.com",
-			Status: "ready",
+			Status: "wait",
 		})
 	}
 
@@ -119,9 +140,32 @@ func JobTalbeUpdate()  {
 	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)
 }
 
+var tableView *walk.TableView
+
 func TableWight() Widget {
+	var err error
+
+	jobBitmap, err = walk.NewBitmap(walk.Size{100, 1})
+	if err != nil {
+		logs.Error("new bit map fail, %s", err.Error())
+	} else {
+		canvas, err := walk.NewCanvasFromImage(jobBitmap)
+		if err != nil {
+			logs.Error(err.Error())
+		} else {
+			canvas.GradientFillRectangle(
+				walk.RGB(0, 205, 0),
+				walk.RGB(0, 205, 0),
+				walk.Horizontal,
+				walk.Rectangle{0, 0, 100, 1})
+			canvas.Dispose()
+		}
+	}
+
 	JobTalbeUpdate()
+
 	return TableView{
+		AssignTo: &tableView,
 		AlternatingRowBG: true,
 		ColumnsOrderable: true,
 		CheckBoxes: true,
@@ -135,10 +179,31 @@ func TableWight() Widget {
 			{Title: LangValue("status"), Width: 80},
 		},
 		StyleCell: func(style *walk.CellStyle) {
+			item := jobTable.items[style.Row()]
+
 			if style.Row()%2 == 0 {
 				style.BackgroundColor = walk.RGB(248, 248, 255)
 			} else {
 				style.BackgroundColor = walk.RGB(220, 220, 220)
+			}
+
+			switch style.Col() {
+			case 2:
+				if canvas := style.Canvas(); canvas != nil {
+					bounds := style.Bounds()
+					bounds2 := bounds
+
+					bounds.Width = int(float64(bounds.Width) * float64(item.ProgressRate))/100
+					bounds.Height -= 1
+					canvas.DrawBitmapPartWithOpacity(jobBitmap,
+						bounds,
+						walk.Rectangle{0, 0, item.ProgressRate, 1},
+						80)
+
+					canvas.DrawText(fmt.Sprintf("%d%%", item.ProgressRate), tableView.Font(), 0, bounds2, walk.TextLeft)
+				}
+			case 6:
+				style.Image = StatusToIcon(item.Status)
 			}
 		},
 		Model:jobTable,
