@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/astaxie/beego/logs"
 	"golang.org/x/sys/windows/registry"
 	"syscall"
 )
@@ -88,4 +89,24 @@ func DataLongValueSet(name string, value uint64) error {
 		return err
 	}
 	return key.SetQWordValue(name, value)
+}
+
+func DataInit() error {
+	dir := DataStringValueGet("downloaddir")
+	if dir == "" {
+		return DataStringValueSet("downloaddir", userVideoDir())
+	}
+	return nil
+}
+
+func DataDownLoadDirGet() string {
+	return DataStringValueGet("downloaddir")
+}
+
+func DataDownLoadDirSet(dir string) error {
+	err := DataStringValueSet("downloaddir", dir)
+	if err != nil {
+		logs.Error(err.Error())
+	}
+	return nil
 }

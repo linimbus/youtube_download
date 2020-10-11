@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/astaxie/beego/logs"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 )
@@ -18,12 +17,7 @@ func ToolBarInit() ToolBar {
 				Text: LangValue("add"),
 				Image: ICON_TOOL_ADD,
 				OnTriggered: func() {
-					_, err := walk.Clipboard().Text()
-					if err != nil {
-						logs.Error("no ")
-					} else {
-						//lineEdit.SetText(copy)
-					}
+					AddJobOnce()
 				},
 			},
 			Action{

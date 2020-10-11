@@ -18,6 +18,11 @@ func main()  {
 		logs.Error(err.Error())
 		return
 	}
+	err = DataInit()
+	if err != nil {
+		logs.Error(err.Error())
+		return
+	}
 	err = LanguageInit()
 	if err != nil {
 		logs.Error(err.Error())

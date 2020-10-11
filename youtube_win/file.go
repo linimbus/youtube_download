@@ -31,6 +31,24 @@ func appDataDir() string {
 	return datadir
 }
 
+func userVideoDir() string {
+	userDir := fmt.Sprintf("%s%s\\Videos", os.Getenv("HomeDrive"), os.Getenv("HOMEPATH"))
+	_, err := os.Stat(userDir)
+	if err != nil {
+		userDir = os.Getenv("CD")
+	}
+	if userDir == "" {
+		userDir = ".\\"
+	} else {
+		userDir = fmt.Sprintf("%s\\%s", userDir, DEFAULT_DIR_HOME)
+	}
+	_, err = os.Stat(userDir)
+	if err != nil {
+		os.MkdirAll(userDir, 664)
+	}
+	return userDir
+}
+
 func appDataDirInit() error {
 	dir := appDataDir()
 	_, err := os.Stat(dir)

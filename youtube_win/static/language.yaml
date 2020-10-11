@@ -228,6 +228,56 @@
   - Ordinaire
   - normal
   - Normal
+- key: update
+  value:
+  - Update
+  - 更新
+  - 更新
+  - 更新
+  - 최신 정보
+  - Mise à jour
+  - Aktualisieren
+  - Actualizar
+- key: pastelink
+  value:
+  - Paste Link
+  - 粘贴链接
+  - 粘貼鏈接
+  - リンクをペーストする
+  - 링크 붙여 넣기
+  - Coller le lien
+  - Link einfügen
+  - Pegue el enlace
+- key: adddownloadjob
+  value:
+  - Add Download Job
+  - 添加下载任务
+  - 添加下載任務
+  - ダウンロードタスクを追加
+  - 다운로드 작업 추가
+  - Ajouter une tâche de téléchargement
+  - Download-Job hinzufügen
+  - Agregar trabajo de descarga
+- key: update
+  value:
+  - Update
+  - 更新
+  - 更新
+  - 更新
+  - 최신 정보
+  - Mise à jour
+  - Aktualisieren
+  - Actualizar
+- key: updating
+  value:
+  - Updating...
+  - 更新中...
+  - 更新中...
+  - 更新中...
+  - 업데이트...
+  - Mise à jour...
+  - Aktualisierung...
+  - Actualización...
 - key: totalflow
   value:
   - Total Traffic
@@ -248,6 +298,16 @@
   - Trafic en temps réel
   - Echtzeitverkehr
   - Tráfico en tiempo real
+- key: downloadlink
+  value:
+  - Download Link
+  - 下载地址
+  - 下載地址
+  - ダウンロードリンク
+  - 다운로드 링크
+  - Lien de téléchargement
+  - Download-Link
+  - Enlace de descarga
 - key: localaddress
   value:
   - Local Address
