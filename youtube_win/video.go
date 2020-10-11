@@ -136,10 +136,9 @@ func NewVideoMode() *VideoModel {
 
 func VideoWight(video *VideoModel) []Widget {
 	var tableView *walk.TableView
-	var times, title, author, duration *walk.Label
+	var title, author, duration *walk.Label
 
 	video.update = func(v *VideoModel) {
-		times.SetText(v.Timestamp)
 		title.SetText(v.Title)
 		author.SetText(v.Author)
 		duration.SetText(fmt.Sprintf("%v", v.Duration))
@@ -149,13 +148,6 @@ func VideoWight(video *VideoModel) []Widget {
 		Composite{
 			Layout: Grid{Columns: 2, MarginsZero: true},
 			Children: []Widget{
-				Label{
-					Text: "Time" + ":",
-				},
-				Label{
-					AssignTo: &times,
-					Text: video.Timestamp,
-				},
 				Label{
 					Text: "Title" + ":",
 				},

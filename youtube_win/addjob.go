@@ -129,7 +129,7 @@ func DownLinkFromClipboard() string {
 	return link
 }
 
-func WebUrlInput(dlg *walk.Dialog, video *VideoModel) []Widget {
+func WebUrlInput(dlg **walk.Dialog, video *VideoModel) []Widget {
 	var input *walk.TextEdit
 	var update *walk.PushButton
 
@@ -156,7 +156,7 @@ func WebUrlInput(dlg *walk.Dialog, video *VideoModel) []Widget {
 				go func() {
 					err := UpdateAction(input.Text(), update, video)
 					if err != nil {
-						ErrorBoxAction(dlg, err.Error())
+						ErrorBoxAction(*dlg, err.Error())
 					}
 				}()
 			},
@@ -267,23 +267,6 @@ func AddJobOptionGet(video *VideoModel) []Widget {
 	}
 }
 
-func AddJobButton(video *VideoModel) []Widget {
-	return []Widget{
-		PushButton{
-			Text: "Add",
-		},
-		PushButton{
-			Text: "Cancel",
-		},
-		HSpacer{
-			MinSize: Size{Width: 100},
-		},
-		HSpacer{
-			MinSize: Size{Width: 100},
-		},
-	}
-}
-
 func AddJobOnce()  {
 	var dlg *walk.Dialog
 	var acceptPB, cancelPB *walk.PushButton
@@ -301,8 +284,8 @@ func AddJobOnce()  {
 		Icon: walk.IconInformation(),
 		DefaultButton: &acceptPB,
 		CancelButton: &cancelPB,
-		Size: Size{700, 600},
-		MinSize: Size{700, 600},
+		Size: Size{700, 500},
+		MinSize: Size{700, 500},
 		Layout:  VBox{
 			Alignment: AlignHNearVNear,
 			MarginsZero: true,
@@ -313,7 +296,7 @@ func AddJobOnce()  {
 				Layout: HBox{
 					Alignment: AlignHNearVNear,
 				},
-				Children: WebUrlInput(dlg, video),
+				Children: WebUrlInput(&dlg, video),
 			},
 			Composite{
 				Layout: VBox{
@@ -331,7 +314,23 @@ func AddJobOnce()  {
 				Layout: HBox{
 					Alignment: AlignHNearVNear,
 				},
-				Children: AddJobButton(video),
+				Children: []Widget{
+					PushButton{
+						Text: "Add",
+						OnClicked: func() {
+							dlg.Accept()
+						},
+					},
+					PushButton{
+						Text: "Cancel",
+						OnClicked: func() {
+							dlg.Cancel()
+						},
+					},
+					HSpacer{
+
+					},
+				},
 			},
 		},
 	}.Run(MainWindowsCtrl())
