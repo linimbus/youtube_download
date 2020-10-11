@@ -130,15 +130,17 @@ func DownLinkFromClipboard() string {
 }
 
 func WebUrlInput(dlg *walk.Dialog, video *VideoModel) []Widget {
-	var input *walk.LineEdit
+	var input *walk.TextEdit
 	var update *walk.PushButton
 
 	return []Widget{
 		Label{
 			Text: LangValue("downloadlink"),
 		},
-		LineEdit{
+		TextEdit{
+			CompactHeight: true,
 			AssignTo: &input,
+			VScroll: true,
 			Text: DownLinkFromClipboard(),
 		},
 		PushButton{
@@ -162,6 +164,126 @@ func WebUrlInput(dlg *walk.Dialog, video *VideoModel) []Widget {
 	}
 }
 
+func AddJobOptionGet(video *VideoModel) []Widget {
+	var all, hd4k, hd2k, hd1080p, hd720p, audio *walk.PushButton
+	var allFlag, hd4kFlag, hd2kFlag, hd1080Flag, hd720Flag, audioFlag bool
+
+	return []Widget{
+		PushButton{
+			AssignTo: &all,
+			Text: "All",
+			OnClicked: func() {
+				all.SetChecked(!allFlag)
+				allFlag = !allFlag
+
+				for _, v := range video.items {
+					v.checked = allFlag
+				}
+				video.Flash()
+			},
+		},
+		PushButton{
+			AssignTo: &hd4k,
+			Text: "hd2160(4K)",
+			OnClicked: func() {
+				hd4k.SetChecked(!hd4kFlag)
+				hd4kFlag = !hd4kFlag
+
+				for _, v := range video.items {
+					if v.Quality == "hd2160" {
+						v.checked = hd4kFlag
+					}
+				}
+				video.Flash()
+			},
+		},
+		PushButton{
+			AssignTo: &hd2k,
+			Text: "hd1440(2K)",
+			OnClicked: func() {
+				hd2k.SetChecked(!hd2kFlag)
+				hd2kFlag = !hd2kFlag
+
+				for _, v := range video.items {
+					if v.Quality == "hd1440" {
+						v.checked = hd2kFlag
+					}
+				}
+				video.Flash()
+			},
+		},
+		PushButton{
+			AssignTo: &hd1080p,
+			Text: "hd1080(1080p)",
+			OnClicked: func() {
+				hd1080p.SetChecked(!hd1080Flag)
+				hd1080Flag = !hd1080Flag
+
+				for _, v := range video.items {
+					if v.Quality == "hd1080" {
+						v.checked = hd1080Flag
+					}
+				}
+				video.Flash()
+			},
+		},
+		PushButton{
+			AssignTo: &hd720p,
+			Text: "hd720(720p)",
+			OnClicked: func() {
+				hd720p.SetChecked(!hd720Flag)
+				hd720Flag = !hd720Flag
+
+				for _, v := range video.items {
+					if v.Quality == "hd720" {
+						v.checked = hd720Flag
+					}
+				}
+				video.Flash()
+			},
+		},
+		PushButton{
+			AssignTo: &audio,
+			Text: "Audio",
+			OnClicked: func() {
+				audio.SetChecked(!audioFlag)
+				audioFlag = !audioFlag
+
+				for _, v := range video.items {
+					if strings.Index(v.Format, "audio") == -1 {
+						continue
+					}
+					if  strings.Index(v.MimeType, "mp4a") == -1 {
+						continue
+					}
+					v.checked = audioFlag
+				}
+				video.Flash()
+			},
+		},
+		HSpacer{
+
+		},
+	}
+}
+
+func AddJobButton(video *VideoModel) []Widget {
+	return []Widget{
+		PushButton{
+			Text: "Add",
+		},
+		PushButton{
+			Text: "Cancel",
+		},
+		HSpacer{
+			MinSize: Size{Width: 100},
+		},
+		HSpacer{
+			MinSize: Size{Width: 100},
+		},
+	}
+}
+
 func AddJobOnce()  {
 	var dlg *walk.Dialog
 	var acceptPB, cancelPB *walk.PushButton
@@ -179,8 +301,8 @@ func AddJobOnce()  {
 		Icon: walk.IconInformation(),
 		DefaultButton: &acceptPB,
 		CancelButton: &cancelPB,
-		Size: Size{mainWindowWidth, mainWindowHeight},
-		MinSize: Size{mainWindowWidth, mainWindowHeight},
+		Size: Size{700, 600},
+		MinSize: Size{700, 600},
 		Layout:  VBox{
 			Alignment: AlignHNearVNear,
 			MarginsZero: true,
@@ -199,6 +321,18 @@ func AddJobOnce()  {
 				},
 				Children: VideoWight(video),
  			},
+ 			Composite{
+				Layout: HBox{
+					Alignment: AlignHNearVNear,
+				},
+				Children: AddJobOptionGet(video),
+			},
+			Composite{
+				Layout: HBox{
+					Alignment: AlignHNearVNear,
+				},
+				Children: AddJobButton(video),
+			},
 		},
 	}.Run(MainWindowsCtrl())
 	if err != nil {

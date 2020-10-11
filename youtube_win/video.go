@@ -123,6 +123,11 @@ func (n *VideoModel) Update(video *VideoModel)  {
 	n.update(video)
 }
 
+func (n *VideoModel)Flash()  {
+	n.PublishRowsReset()
+	n.Sort(n.sortColumn, n.sortOrder)
+}
+
 func NewVideoMode() *VideoModel {
 	video := new(VideoModel)
 	video.items = make([]*VideoFormat, 0)
