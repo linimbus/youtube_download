@@ -25,7 +25,7 @@ type Margins struct {
 	Right  int
 	Bottom int
 }
- 
+
 func (m Margins) isZero() bool {
 	return m.Left == 0 && m.Top == 0 && m.Right == 0 && m.Bottom == 0
 }

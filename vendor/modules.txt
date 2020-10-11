@@ -47,6 +47,8 @@ golang.org/x/crypto/ssh/terminal
 ## explicit
 golang.org/x/net/http/httpproxy
 golang.org/x/net/idna
+golang.org/x/net/internal/socks
+golang.org/x/net/proxy
 # golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
 ## explicit
 golang.org/x/sys/internal/unsafeheader
