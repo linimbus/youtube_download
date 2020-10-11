@@ -39,7 +39,6 @@ type HttpClient struct {
 }
 
 func (this *HttpClient)ProxyFunc(r *http.Request) (*url.URL, error)  {
-	fmt.Println(r)
 	return this.httpproxyHandler(r.URL)
 }
 
