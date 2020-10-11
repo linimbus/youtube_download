@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
@@ -15,10 +14,9 @@ import (
 
 const HTTP_CLIENT_TIME_OUT = 60
 
-func NewTransport(timeout int, tlscfg *tls.Config) *http.Transport {
+func NewTransport(timeout int) *http.Transport {
 	tmout := time.Duration(timeout) * time.Second
 	return &http.Transport{
-		TLSClientConfig: tlscfg,
 		DialContext: (&net.Dialer{
 			Timeout:   tmout,
 			KeepAlive: tmout,
@@ -32,7 +30,7 @@ func NewTransport(timeout int, tlscfg *tls.Config) *http.Transport {
 }
 
 type HttpClient struct {
-	cli http.Client
+	cli *http.Client
 	transport *http.Transport
 
 	timeout int
@@ -40,11 +38,12 @@ type HttpClient struct {
 	httpproxyHandler func(reqURL *url.URL) (*url.URL, error)
 }
 
-func (http *HttpClient)ProxyFunc(r *http.Request) (*url.URL, error)  {
-	return http.httpproxyHandler(r.URL)
+func (this *HttpClient)ProxyFunc(r *http.Request) (*url.URL, error)  {
+	fmt.Println(r)
+	return this.httpproxyHandler(r.URL)
 }
 
-func (http *HttpClient)HttpProxyInit(proxy *HttpProxyOption) error {
+func (this *HttpClient)HttpProxyInit(proxy *HttpProxyOption) error {
 	var proxyurl string
 	if proxy.Auth {
 		proxyurl = fmt.Sprintf("%s://%s:%s@%s", proxy.Protocal,
@@ -52,9 +51,9 @@ func (http *HttpClient)HttpProxyInit(proxy *HttpProxyOption) error {
 	} else {
 		proxyurl = fmt.Sprintf("%s://%s", proxy.Protocal, proxy.Address)
 	}
-	http.httpproxycfg = &httpproxy.Config{HTTPProxy: proxyurl, HTTPSProxy: proxyurl}
-	http.httpproxyHandler = http.httpproxycfg.ProxyFunc()
-	http.transport.Proxy = http.ProxyFunc
+	this.httpproxycfg = &httpproxy.Config{HTTPProxy: proxyurl, HTTPSProxy: proxyurl}
+	this.httpproxyHandler = this.httpproxycfg.ProxyFunc()
+	this.transport.Proxy = this.ProxyFunc
 	return nil
 }
 
@@ -75,26 +74,30 @@ func (http *HttpClient)Sock5Init(proxycfg *HttpProxyOption) error {
 	return nil
 }
 
-func HttpClientGet() (*HttpClient, error) {
+func HttpClientGet(proxy *HttpProxyOption) (*HttpClient, error) {
 	timeout := DataIntValueGet("httpclienttimeout")
 	if timeout == 0 {
 		timeout = HTTP_CLIENT_TIME_OUT
 	}
 
-	tlscfg, err := TlsConfigClient("")
-	if err != nil {
-		logs.Error(err.Error())
-		return nil, err
-	}
-
 	httpClient := new(HttpClient)
-	httpClient.transport = NewTransport(int(timeout), tlscfg)
+	httpClient.transport = NewTransport(int(timeout))
+	httpClient.cli = &http.Client{Transport: httpClient.transport}
 
-	proxy := HttpProxyGet()
-	if proxy == nil {
+	if proxy == nil || proxy.Using == false {
 		return httpClient, nil
 	}
 
+	if proxy.Protocal == "https" {
+		tlscfg, err := TlsConfigClient(proxy.Address)
+		if err != nil {
+			logs.Error(err.Error())
+			return nil, err
+		}
+		httpClient.transport.TLSClientConfig = tlscfg
+	}
+
+	var err error
 	if proxy.Protocal == "http" || proxy.Protocal == "https" {
 		err = httpClient.HttpProxyInit(proxy)
 	} else if proxy.Protocal == "sock5" {
@@ -110,6 +113,7 @@ func HttpClientGet() (*HttpClient, error) {
 }
 
 type HttpProxyOption struct {
+	Using    bool
 	Protocal string // http、https、sock5
 	Address  string
 	Auth     bool

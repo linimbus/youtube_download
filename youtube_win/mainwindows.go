@@ -122,7 +122,9 @@ func mainWindowBuilder(mw **walk.MainWindow) *MainWindow {
 		StatusBarItems: StatusBarInit(),
 		Children: []Widget{
 			Composite{
-				Layout: VBox{MarginsZero: true},
+				Layout: HBox{
+
+				},
 				Children: []Widget{
 					ToolBarInit(),
 				},

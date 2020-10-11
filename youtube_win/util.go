@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"io/ioutil"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,6 +16,15 @@ import (
 
 func VersionGet() string {
 	return "v1.0.0"
+}
+
+func IsConnect(address string, timeout int) bool {
+	conn, err := net.DialTimeout("tcp", address, time.Duration(timeout)*time.Second)
+	if err != nil {
+		return false
+	}
+	conn.Close()
+	return true
 }
 
 func GetTimeStamp() string {

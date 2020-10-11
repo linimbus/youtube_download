@@ -24,7 +24,6 @@ func MenuBarInit() []MenuItem {
 	idx := LangOptionIdx()
 
 	LangActions = make([]*walk.Action, len(langs))
-
 	var langMenu []MenuItem
 	for i, v := range langs {
 		trigger := func(index int) func() {
@@ -32,7 +31,6 @@ func MenuBarInit() []MenuItem {
 				LangOnTriggeredSet(index)
 			}
 		}
-
 		action := Action{
 			AssignTo: &LangActions[i],
 			Text: v,
@@ -48,6 +46,12 @@ func MenuBarInit() []MenuItem {
 		Menu{
 			Text: LangValue("langname"),
 			Items: langMenu,
+		},
+		Action{
+			Text: LangValue("proxysetting"),
+			OnTriggered: func() {
+				ProxySetDialog()
+			},
 		},
 		Action{
 			Text: LangValue("miniwin"),

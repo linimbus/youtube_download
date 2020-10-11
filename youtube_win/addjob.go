@@ -7,18 +7,17 @@ import (
 	. "github.com/lxn/walk/declarative"
 )
 
-func Clipboard() (string,error) {
+func Clipboard() (string, error) {
 	text, err := walk.Clipboard().Text()
 	if err != nil {
 		logs.Error(err.Error())
-		return "", fmt.Errorf("no any c")
+		return "", fmt.Errorf("no any clipboard")
 	}
 	err = walk.Clipboard().Clear()
 	if err != nil {
 		logs.Error(err.Error())
 	}
-
-
+	return text, nil
 }
 
 func AddJob()  {
