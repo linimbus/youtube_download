@@ -151,10 +151,12 @@ func WebUrlInput(dlg *walk.Dialog, video *VideoModel) []Widget {
 			AssignTo: &update,
 			Text: LangValue("update"),
 			OnClicked: func() {
-				err := UpdateAction(input.Text(), update, video)
-				if err != nil {
-					ErrorBoxAction(dlg, err.Error())
-				}
+				go func() {
+					err := UpdateAction(input.Text(), update, video)
+					if err != nil {
+						ErrorBoxAction(dlg, err.Error())
+					}
+				}()
 			},
 		},
 	}
