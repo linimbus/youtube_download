@@ -27,6 +27,9 @@ func ToolBarInit() ToolBar {
 			Action{
 				Text: LangValue("scheddownloadtime"),
 				Image: ICON_TOOL_RESERVE,
+				OnTriggered: func() {
+					KeepSet()
+				},
 			},
 			Action{
 				Text: LangValue("delete"),

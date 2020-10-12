@@ -267,6 +267,34 @@ func AddJobOptionGet(video *VideoModel) []Widget {
 	}
 }
 
+func DownloadOptionGet(video *VideoModel) []Widget {
+	var now, keep *walk.RadioButton
+
+	return []Widget{
+		RadioButton{
+			AssignTo: &now,
+			Text: "立即下载",
+			OnBoundsChanged: func() {
+				now.SetChecked(!video.Keep)
+			},
+			OnClicked: func() {
+				video.Keep = false
+				now.SetChecked(!video.Keep)
+				keep.SetChecked(video.Keep)
+			},
+		},
+		RadioButton{
+			AssignTo: &keep,
+			Text: "预约下载",
+			OnClicked: func() {
+				video.Keep = true
+				keep.SetChecked(video.Keep)
+				now.SetChecked(!video.Keep)
+			},
+		},
+	}
+}
+
 func AddJobOnce()  {
 	var dlg *walk.Dialog
 	var acceptPB, cancelPB *walk.PushButton
@@ -309,6 +337,12 @@ func AddJobOnce()  {
 					Alignment: AlignHNearVNear,
 				},
 				Children: AddJobOptionGet(video),
+			},
+			Composite{
+				Layout: HBox{
+					Alignment: AlignHNearVNear,
+				},
+				Children: DownloadOptionGet(video),
 			},
 			Composite{
 				Layout: HBox{

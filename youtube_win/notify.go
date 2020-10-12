@@ -50,7 +50,7 @@ func NotifyInit(mw *walk.MainWindow)  {
 	}
 
 	exitBut.Triggered().Attach(func() {
-		walk.App().Exit(0)
+		MainWindowsClose()
 	})
 
 	showBut := walk.NewAction()

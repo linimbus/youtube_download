@@ -11,29 +11,6 @@ import (
 var mainWindowWidth = 700
 var mainWindowHeight = 400
 
-func ButtonWight() []Widget {
-	var start *walk.PushButton
-	var stop *walk.PushButton
-
-	return []Widget{
-		PushButton{
-			AssignTo:  &start,
-			Text:      LangValue("start"),
-			OnClicked: func() {
-
-			},
-		},
-		PushButton{
-			AssignTo:  &stop,
-			Enabled:   false,
-			Text:      LangValue("stop"),
-			OnClicked: func() {
-
-			},
-		},
-	}
-}
-
 type MainWindowCtrl struct {
 	instance *MainWindow
 	ctrl     *walk.MainWindow
@@ -52,6 +29,12 @@ func MainWindowsVisible(flag bool)  {
 	if mainWindowCtrl.ctrl != nil {
 		mainWindowCtrl.ctrl.SetVisible(flag)
 	}
+}
+
+func MainWindowsClose()  {
+	logs.Info("main windows ready to close")
+	mainWindowCtrl.exitInt = 0
+	mainWindowCtrl.exit <- struct{}{}
 }
 
 func AppExitPreFunc()  {

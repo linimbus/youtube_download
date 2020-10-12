@@ -25,6 +25,8 @@ type VideoFormat struct {
 type VideoModel struct {
 	sync.RWMutex
 
+	Keep         bool
+
 	update       func(v *VideoModel)
 
 	Timestamp    string
