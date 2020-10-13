@@ -33,6 +33,11 @@ func main()  {
 		logs.Error(err.Error())
 		return
 	}
+	err = JobInit()
+	if err != nil {
+		logs.Error(err.Error())
+		return
+	}
 	err = MainWindowStart()
 	if err != nil {
 		logs.Error(err.Error())

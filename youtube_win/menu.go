@@ -48,6 +48,12 @@ func MenuBarInit() []MenuItem {
 			Items: langMenu,
 		},
 		Action{
+			Text: LangValue("runlog"),
+			OnTriggered: func() {
+				OpenBrowserWeb(LogDirGet())
+			},
+		},
+		Action{
 			Text: LangValue("proxysetting"),
 			OnTriggered: func() {
 				ProxySetDialog()

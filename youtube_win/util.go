@@ -15,7 +15,7 @@ import (
 )
 
 func VersionGet() string {
-	return "v1.0.0"
+	return "v1.0.1"
 }
 
 func IsConnect(address string, timeout int) bool {
