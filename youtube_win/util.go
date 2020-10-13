@@ -35,6 +35,16 @@ func GetTimeStamp() string {
 		year, month, day, now.Hour(), now.Minute(), now.Second())
 }
 
+func GetTimeStampNumber() string {
+	now := time.Now()
+	year, month, day := now.Date()
+	return fmt.Sprintf(
+		"%4d%02d%02d%02d%02d%02d.%06d",
+		year, month, day,
+		now.Hour(), now.Minute(), now.Second(),
+		now.Nanosecond()/int(time.Microsecond))
+}
+
 func SaveToFile(name string, body []byte) error {
 	return ioutil.WriteFile(name, body, 0664)
 }

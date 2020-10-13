@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
+	"github.com/lixiangyun/youtube_download/youtube"
 	"io/ioutil"
+	"sync"
 	"time"
 )
 
@@ -21,9 +23,13 @@ type JobVideo struct {
 }
 
 type Job struct {
+	Timestamp   string
+
 	DownLoadDir string
 	WebUrl      string
 	Reserve     bool
+	ItagNos     []int
+	From        string
 
 	TotalSize   int64
 	Status      string
@@ -36,15 +42,67 @@ type Job struct {
 }
 
 type JobCtrl struct {
+	sync.RWMutex
 
+	video map[string]*youtube.Video
 	cache []*Job
 }
 
-func JobAdd()  {
+func JobAdd(v *youtube.Video, itagno []int, weburl string, reserve bool, downloaddir string) error {
+	job := new(Job)
+	job.Timestamp = GetTimeStampNumber()
+	job.WebUrl = weburl
+	job.ItagNos = itagno
+	job.DownLoadDir = downloaddir
+	job.Reserve = reserve
 
+	fmt.Println(job)
+
+	jobCtrl.Lock()
+	jobCtrl.cache = append(jobCtrl.cache, job)
+	jobSync()
+	jobCtrl.Unlock()
+
+	return nil
 }
 
 var jobCtrl *JobCtrl
+
+func job2Item(i int,job *Job) *JobItem {
+	return &JobItem{
+		Index: i,
+		Title: job.Timestamp,
+		ProgressRate: 0,
+		Speed: 0,
+		Size: int(job.TotalSize),
+		From: job.From,
+		Status: "ready",
+	}
+}
+
+func jobSyncToConsole()  {
+	jobCtrl.RLock()
+	defer jobCtrl.RUnlock()
+
+	var output []*JobItem
+	maxLen := len(jobCtrl.cache)
+	for i:=0; i<maxLen; i++ {
+		output = append(output,
+			job2Item(i, jobCtrl.cache[maxLen-1-i]),
+		)
+	}
+
+	JobTalbeUpdate(output)
+}
+
+func jobSchedTask()  {
+	for  {
+		// running task
+
+		jobSyncToConsole()
+		time.Sleep(2 * time.Second)
+	}
+}
 
 func jobSync()  {
 	file := fmt.Sprintf("%s\\job.json", appDataDir())
@@ -99,6 +157,8 @@ func JobInit() error {
 		logs.Error(err.Error())
 		return err
 	}
+
+	go jobSchedTask()
 
 	return nil
 }

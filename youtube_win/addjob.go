@@ -25,7 +25,7 @@ func Clipboard() (string, error) {
 
 var mlock sync.Mutex
 
-func VideoInfoGet(link string) (*youtube.Video, error) {
+func VideoInfoGet(link string, dir string) (*youtube.Video, error) {
 	httpclient, err := HttpClientGet(HttpProxyGet())
 	if err != nil {
 		logs.Error(err.Error())
@@ -33,7 +33,7 @@ func VideoInfoGet(link string) (*youtube.Video, error) {
 	}
 
 	dl := ytdl.Downloader{
-		OutputDir: BaseSettingGet().HomeDir,
+		OutputDir: dir,
 	}
 	dl.HTTPClient = httpclient.cli
 
@@ -81,12 +81,15 @@ func UpdateAction(link string, update *walk.PushButton, video *VideoModel) error
 	defer update.SetText(oldText)
 	defer update.SetEnabled(true)
 
-	info, err := VideoInfoGet(link)
+	dir := BaseSettingGet().HomeDir
+	info, err := VideoInfoGet(link, dir)
 	if err != nil {
 		logs.Error(err.Error())
 		return err
 	}
 
+	video.DownloadDir = dir
+	video.WebUrl = link
 	video.Update(info)
 
 	return nil
@@ -293,6 +296,20 @@ func DownloadOptionGet(video *VideoModel) []Widget {
 	}
 }
 
+func addJobToTask(v *VideoModel) error {
+	var itagno []int
+	for _, v := range v.items {
+		if v.checked {
+			itagno = append(itagno, v.ItagNo)
+		}
+	}
+	if len(itagno) == 0 {
+		return fmt.Errorf("no select!")
+	}
+
+	return JobAdd(v.info, itagno, v.WebUrl, v.Keep, v.DownloadDir)
+}
+
 func AddJobOnce()  {
 	var dlg *walk.Dialog
 	var acceptPB, cancelPB *walk.PushButton
@@ -345,6 +362,11 @@ func AddJobOnce()  {
 					PushButton{
 						Text: LangValue("add"),
 						OnClicked: func() {
+							err := addJobToTask(video)
+							if err != nil {
+								ErrorBoxAction(dlg, err.Error())
+								return
+							}
 							dlg.Accept()
 						},
 					},

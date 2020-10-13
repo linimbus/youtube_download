@@ -28,6 +28,8 @@ type VideoModel struct {
 
 	info        *youtube.Video
 
+	WebUrl       string
+	DownloadDir  string
 	Keep         bool
 	update       func(v *VideoModel)
 

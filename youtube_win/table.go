@@ -5,7 +5,6 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
-	"math/rand"
 	"sort"
 	"sync"
 )
@@ -120,21 +119,15 @@ var jobBitmap *walk.Bitmap
 
 var jobTable *JobModel
 
-func JobTalbeUpdate()  {
-	item := make([]*JobItem, 0)
-	for i:= 0 ; i < 10; i++ {
-		item = append(item, &JobItem{
-			Index: i,
-			Title: GetTimeStamp(),
-			ProgressRate: rand.Int() % 100,
-			Speed: rand.Int() % 1048576 ,
-			Size: rand.Int() % 1048576000,
-			From: "youtube.com",
-			Status: "wait",
-		})
-	}
-
+func init()  {
 	jobTable = new(JobModel)
+	jobTable.items = make([]*JobItem, 0)
+}
+
+func JobTalbeUpdate(item []*JobItem )  {
+	jobTable.Lock()
+	defer jobTable.Unlock()
+
 	jobTable.items = item
 	jobTable.PublishRowsReset()
 	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)
@@ -161,8 +154,6 @@ func TableWight() Widget {
 			canvas.Dispose()
 		}
 	}
-
-	JobTalbeUpdate()
 
 	return TableView{
 		AssignTo: &tableView,
