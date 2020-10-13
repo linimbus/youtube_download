@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/lixiangyun/youtube_download/youtube"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 	"sort"
@@ -25,8 +26,9 @@ type VideoFormat struct {
 type VideoModel struct {
 	sync.RWMutex
 
-	Keep         bool
+	info        *youtube.Video
 
+	Keep         bool
 	update       func(v *VideoModel)
 
 	Timestamp    string
@@ -113,16 +115,33 @@ func (m *VideoModel) Sort(col int, order walk.SortOrder) error {
 	return m.SorterBase.Sort(col, order)
 }
 
-func (n *VideoModel) Update(video *VideoModel)  {
-	n.Title = video.Title
-	n.Author = video.Author
-	n.Duration = video.Duration
+func (n *VideoModel) Update(info *youtube.Video)  {
 
-	n.items = video.items
+	n.info = info
+	n.Title = info.Title
+	n.Author = info.Author
+	n.Duration = info.Duration
+
+	items := make([]*VideoFormat, 0)
+
+	for _, v := range info.Formats {
+		items = append(items, &VideoFormat{
+			ItagNo:   v.ItagNo,
+			Quality:  v.Quality,
+			Format:   StringCat(v.MimeType, ";"),
+			MimeType: v.MimeType,
+			FPS:      v.FPS,
+			Width:    v.Width,
+			Height:   v.Height,
+			Length:   StringToInt(v.ContentLength),
+		})
+	}
+
+	n.items = items
 	n.PublishRowsReset()
 	n.Sort(n.sortColumn, n.sortOrder)
 
-	n.update(video)
+	n.update(n)
 }
 
 func (n *VideoModel)Flash()  {
@@ -151,21 +170,21 @@ func VideoWight(video *VideoModel) []Widget {
 			Layout: Grid{Columns: 2, MarginsZero: true},
 			Children: []Widget{
 				Label{
-					Text: "Title" + ":",
+					Text: LangValue("title") + ":",
 				},
 				Label{
 					AssignTo: &title,
 					Text: video.Title,
 				},
 				Label{
-					Text: "Author" + ":",
+					Text: LangValue("author") + ":",
 				},
 				Label{
 					AssignTo: &author,
 					Text: video.Author,
 				},
 				Label{
-					Text: "Duration" + ":",
+					Text: LangValue("duration") + ":",
 				},
 				Label{
 					AssignTo: &duration,
@@ -184,13 +203,13 @@ func VideoWight(video *VideoModel) []Widget {
 			ColumnsOrderable: true,
 			CheckBoxes: true,
 			Columns: []TableViewColumn{
-				{Title: "No.", Width: 50},
-				{Title: "Quality", Width: 50},
-				{Title: "Format", Width: 80},
-				{Title: "MimeType", Width: 250},
-				{Title: "FPS", Width: 30},
-				{Title: "Screen", Width: 80},
-				{Title: "Length", Width: 60},
+				{Title: LangValue("itagno"), Width: 50},
+				{Title: LangValue("quality"), Width: 50},
+				{Title: LangValue("format"), Width: 80},
+				{Title: LangValue("mimeType"), Width: 250},
+				{Title: LangValue("FPS"), Width: 30},
+				{Title: LangValue("screen"), Width: 80},
+				{Title: LangValue("size"), Width: 60},
 			},
 			StyleCell: func(style *walk.CellStyle) {
 				//item := jobTable.items[style.Row()]

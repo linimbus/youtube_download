@@ -88,7 +88,7 @@ func ProxySetDialog()  {
 	cnt, err := Dialog{
 		AssignTo: &dlg,
 		Title: LangValue("proxysetting"),
-		Icon: walk.IconInformation(),
+		Icon: ICON_Network_Flow,
 		DefaultButton: &acceptPB,
 		CancelButton: &cancelPB,
 		Size: Size{300, 300},

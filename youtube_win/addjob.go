@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 func Clipboard() (string, error) {
@@ -62,29 +63,6 @@ func StringToInt(s string) int {
 	return num
 }
 
-func videoToMode(info *youtube.Video) *VideoModel {
-	video := NewVideoMode()
-	video.Timestamp = GetTimeStamp()
-	video.Duration = info.Duration
-	video.Title = info.Title
-	video.Author = info.Author
-
-	for _, v := range info.Formats {
-		video.items = append(video.items, &VideoFormat{
-			ItagNo:   v.ItagNo,
-			Quality:  v.Quality,
-			Format:   StringCat(v.MimeType, ";"),
-			MimeType: v.MimeType,
-			FPS:      v.FPS,
-			Width:    v.Width,
-			Height:   v.Height,
-			Length:   StringToInt(v.ContentLength),
-		})
-	}
-
-	return video
-}
-
 func UpdateAction(link string, update *walk.PushButton, video *VideoModel) error {
 	mlock.Lock()
 	defer mlock.Unlock()
@@ -95,10 +73,12 @@ func UpdateAction(link string, update *walk.PushButton, video *VideoModel) error
 		return err
 	}
 
+	oldText := update.Text()
+
 	update.SetText(LangValue("updating"))
 	update.SetEnabled(false)
 
-	defer update.SetText(LangValue("update"))
+	defer update.SetText(oldText)
 	defer update.SetEnabled(true)
 
 	info, err := VideoInfoGet(link)
@@ -107,7 +87,7 @@ func UpdateAction(link string, update *walk.PushButton, video *VideoModel) error
 		return err
 	}
 
-	video.Update(videoToMode(info))
+	video.Update(info)
 
 	return nil
 }
@@ -133,6 +113,29 @@ func WebUrlInput(dlg **walk.Dialog, video *VideoModel) []Widget {
 	var input *walk.TextEdit
 	var update *walk.PushButton
 
+	link := DownLinkFromClipboard()
+	if link != "" {
+		go func() {
+			for  {
+				if input != nil && input.Visible() {
+					break
+				}
+				time.Sleep(100*time.Millisecond)
+			}
+			for  {
+				if update != nil && update.Visible() {
+					break
+				}
+				time.Sleep(100*time.Millisecond)
+			}
+
+			err := UpdateAction(input.Text(), update, video)
+			if err != nil {
+				ErrorBoxAction(*dlg, err.Error())
+			}
+		}()
+	}
+
 	return []Widget{
 		Label{
 			Text: LangValue("downloadlink"),
@@ -141,18 +144,13 @@ func WebUrlInput(dlg **walk.Dialog, video *VideoModel) []Widget {
 			CompactHeight: true,
 			AssignTo: &input,
 			VScroll: true,
-			Text: DownLinkFromClipboard(),
-		},
-		PushButton{
-			Text: LangValue("pastelink"),
-			OnClicked: func() {
-				input.SetText(DownLinkFromClipboard())
-			},
+			Text: link,
 		},
 		PushButton{
 			AssignTo: &update,
-			Text: LangValue("update"),
+			Text: LangValue("pastelink"),
 			OnClicked: func() {
+				input.SetText(DownLinkFromClipboard())
 				go func() {
 					err := UpdateAction(input.Text(), update, video)
 					if err != nil {
@@ -171,7 +169,7 @@ func AddJobOptionGet(video *VideoModel) []Widget {
 	return []Widget{
 		PushButton{
 			AssignTo: &all,
-			Text: "All",
+			Text: LangValue("all"),
 			OnClicked: func() {
 				all.SetChecked(!allFlag)
 				allFlag = !allFlag
@@ -273,7 +271,7 @@ func DownloadOptionGet(video *VideoModel) []Widget {
 	return []Widget{
 		RadioButton{
 			AssignTo: &now,
-			Text: "立即下载",
+			Text: LangValue("downloadnow"),
 			OnBoundsChanged: func() {
 				now.SetChecked(!video.Keep)
 			},
@@ -285,7 +283,7 @@ func DownloadOptionGet(video *VideoModel) []Widget {
 		},
 		RadioButton{
 			AssignTo: &keep,
-			Text: "预约下载",
+			Text: LangValue("appointmentdownload"),
 			OnClicked: func() {
 				video.Keep = true
 				keep.SetChecked(video.Keep)
@@ -309,7 +307,7 @@ func AddJobOnce()  {
 	cnt, err := Dialog{
 		AssignTo: &dlg,
 		Title: LangValue("adddownloadjob"),
-		Icon: walk.IconInformation(),
+		Icon: ICON_TOOL_ADD,
 		DefaultButton: &acceptPB,
 		CancelButton: &cancelPB,
 		Size: Size{700, 500},
@@ -350,13 +348,13 @@ func AddJobOnce()  {
 				},
 				Children: []Widget{
 					PushButton{
-						Text: "Add",
+						Text: LangValue("add"),
 						OnClicked: func() {
 							dlg.Accept()
 						},
 					},
 					PushButton{
-						Text: "Cancel",
+						Text: LangValue("cancel"),
 						OnClicked: func() {
 							dlg.Cancel()
 						},

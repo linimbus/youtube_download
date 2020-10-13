@@ -358,6 +358,146 @@
   - Ajouté avec succès
   - Erfolgreich hinzugefügt
   - Agregar éxito
+- key: add
+  value:
+  - Add
+  - 添加
+  - 添加
+  - 追加
+  - 추가
+  - ajouter
+  - hinzufügen
+  - añadir
+- key: downloadnow
+  value:
+  - Download Now
+  - 立即下载
+  - 立即下載
+  - すぐにダウンロード
+  - 즉시 다운로드
+  - télécharger maintenant
+  - jetzt downloaden
+  - Descargar ahora
+- key: appointmentdownload
+  value:
+  - Appointment download
+  - 预约下载
+  - 預約下載
+  - 予定のダウンロード
+  - 약속 다운로드
+  - téléchargement de rendez-vous
+  - Termin herunterladen
+  - descargar cita
+- key: all
+  value:
+  - All
+  - 全部
+  - 全部
+  - すべて
+  - 모두
+  - tout
+  - alle
+  - todos
+- key: title
+  value:
+  - Title
+  - 标题
+  - 標題
+  - 題名
+  - 표제
+  - Titre
+  - Titel
+  - título
+- key: author
+  value:
+  - Author
+  - 作者
+  - 作者
+  - 著者
+  - 저자
+  - auteur
+  - Autor
+  - autor
+- key: duration
+  value:
+  - Duration
+  - 时间
+  - 時間
+  - 時間
+  - 시각
+  - Durée
+  - Dauer
+  - Duración
+- key: itagno
+  value:
+  - No.
+  - 编号
+  - 編號
+  - ナンバリング
+  - 넘버링
+  - Itagno
+  - itagno
+  - itagno
+- key: quality
+  value:
+  - Quality
+  - 质量
+  - 質量
+  - 品質
+  - 품질
+  - qualité
+  - Qualität
+  - calidad
+- key: format
+  value:
+  - Format
+  - 格式
+  - 格式
+  - フォーマット
+  - 체재
+  - format
+  - Format
+  - formato
+- key: mimeType
+  value:
+  - MimeType
+  - MimeType
+  - MimeType
+  - MimeType
+  - MimeType
+  - MimeType
+  - MimeType
+  - MimeType
+- key: FPS
+  value:
+  - FPS
+  - FPS
+  - FPS
+  - FPS
+  - FPS
+  - FPS
+  - FPS
+  - FPS
+- key: screen
+  value:
+  - Screen
+  - 分辨率
+  - 分辨率
+  - 解決
+  - 해결
+  - Écran
+  - Bildschirm
+  - Pantalla
+- key: size
+  value:
+  - Size
+  - 大小
+  - 大小
+  - サイズ
+  - 크기
+  - Taille
+  - Größe
+  - Talla
 - key: port
   value:
   - Port
@@ -708,3 +848,183 @@
   - Achetez-moi un café
   - Bitten Sie den Autor, Kaffee zu trinken
   - Invita al autor a tomar café
+- key: sunday
+  value:
+  - Sunday
+  - 星期日
+  - 星期日
+  - 日曜日
+  - 일요일
+  - Dimanche
+  - Sonntag
+  - domingo
+- key: monday
+  value:
+  - Monday
+  - 星期一
+  - 星期一
+  - 月曜
+  - 월요일
+  - Lundi
+  - Montag
+  - lunes
+- key: tuesday
+  value:
+  - Tuesday
+  - 星期二
+  - 星期二
+  - 火曜日
+  - 화요일
+  - Mardi
+  - Dienstag
+  - martes
+- key: wednesday
+  value:
+  - Wednesday
+  - 星期三
+  - 星期三
+  - 水曜日
+  - 수요일
+  - Mercredi
+  - Mittwoch
+  - miércoles
+- key: thursday
+  value:
+  - Thursday
+  - 星期四
+  - 星期四
+  - 木曜日
+  - 목요일
+  - Jeudi
+  - Donnerstag
+  - jueves
+- key: friday
+  value:
+  - Friday
+  - 星期五
+  - 星期五
+  - 金曜日
+  - 금요일
+  - Vendredi
+  - Freitag
+  - viernes
+- key: saturday
+  value:
+  - Saturday
+  - 星期六
+  - 星期六
+  - 土曜日
+  - 토요일
+  - Samedi
+  - Samstag
+  - sábado
+- key: hour
+  value:
+  - Hour
+  - 小时
+  - 小時
+  - 時間
+  - 시
+  - heure
+  - Stunde
+  - hora
+- key: minute
+  value:
+  - Minute
+  - 分钟
+  - 分鐘
+  - 分
+  - 분
+  - minute
+  - Minute
+  - minuto
+- key: delaytime
+  value:
+  - Delay Time
+  - 延迟时间
+  - 延遲時間
+  - ディレイ
+  - 지연
+  - temporisation
+  - Verzögerungszeit
+  - tiempo de retardo
+- key: date
+  value:
+  - Date
+  - 日期
+  - 日期
+  - 日付
+  - 데이트
+  - Date
+  - Datum
+  - fecha
+- key: time
+  value:
+  - Time
+  - 时间
+  - 時間
+  - 時間
+  - 시각
+  - temps
+  - Zeit
+  - hora
+- key: week
+  value:
+  - Week
+  - 周
+  - 週
+  - 週間
+  - 주
+  - la semaine
+  - Woche
+  - semana
+- key: mode
+  value:
+  - Mode
+  - 模式
+  - 模式
+  - モード
+  - 방법
+  - mode
+  - Modus
+  - modo
+- key: everyday
+  value:
+  - Every Day
+  - 每天
+  - 每天
+  - 毎日
+  - 매일
+  - tous les jours
+  - täglich
+  - todos los días
+- key: weekly
+  value:
+  - Weekly
+  - 每周
+  - 每週
+  - 毎週
+  - 주간
+  - hebdomadaire
+  - wöchentlich
+  - semanal
+- key: fixeddate
+  value:
+  - Fixed Date
+  - 固定日期
+  - 固定日期
+  - 決まった日付
+  - 기일
+  - date fixe
+  - festes Datum
+  - Fecha fijada
+- key: appointmenttimesetting
+  value:
+  - Appointment time setting
+  - 预约时间设置
+  - 預約時間設置
+  - 予約時間の設定
+  - 약속 시간 설정
+  - Réglage de l'heure de rendez-vous
+  - Termineinstellung
+  - Ajuste de la hora de la cita
