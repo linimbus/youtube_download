@@ -20,9 +20,10 @@ func boxAction(from walk.Form, title string, icon *walk.Icon, message string)  {
 		CancelButton: &cancelPB,
 		Layout:  VBox{},
 		Children: []Widget{
-			TextLabel{
+			TextEdit{
+				CompactHeight: true,
+				ReadOnly: true,
 				Text: message,
-				TextAlignment: AlignHNearVCenter,
 				MinSize: Size{200, 150},
 				MaxSize: Size{300, 200},
 			},

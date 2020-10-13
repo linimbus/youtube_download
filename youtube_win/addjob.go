@@ -33,7 +33,7 @@ func VideoInfoGet(link string) (*youtube.Video, error) {
 	}
 
 	dl := ytdl.Downloader{
-		OutputDir: DataDownLoadDirGet(),
+		OutputDir: BaseSettingGet().HomeDir,
 	}
 	dl.HTTPClient = httpclient.cli
 
@@ -296,11 +296,6 @@ func DownloadOptionGet(video *VideoModel) []Widget {
 func AddJobOnce()  {
 	var dlg *walk.Dialog
 	var acceptPB, cancelPB *walk.PushButton
-
-	//var protocal *walk.ComboBox
-	//var using, auth *walk.RadioButton
-	//var user, passwd, address, testurl *walk.LineEdit
-	//var testbut *walk.PushButton
 
 	video := NewVideoMode()
 

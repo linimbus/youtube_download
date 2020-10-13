@@ -23,6 +23,9 @@ func ToolBarInit() ToolBar {
 			Action{
 				Text: LangValue("batchadd"),
 				Image: ICON_TOOL_DOWNLOAD,
+				OnTriggered: func() {
+					AddJobBatch()
+				},
 			},
 			Action{
 				Text: LangValue("scheddownloadtime"),
@@ -46,6 +49,9 @@ func ToolBarInit() ToolBar {
 			Action{
 				Text: LangValue("setting"),
 				Image: ICON_TOOL_SETTING,
+				OnTriggered: func() {
+					Setting()
+				},
 			},
 		},
 	}

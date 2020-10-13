@@ -1028,3 +1028,153 @@
   - Réglage de l'heure de rendez-vous
   - Termineinstellung
   - Ajuste de la hora de la cita
+- key: timenow
+  value:
+  - Time Now
+  - 当前时间
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: downloaddir
+  value:
+  - Download Dir
+  - 下载目录
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: inputdirectory
+  value:
+  - Please enter a valid directory
+  - 请输入合法的目录地址
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: directorynotexist
+  value:
+  - Directory does not exist
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: selectdownloaddir
+  value:
+  - Select DownLoad Dir
+  - 下载目录
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: downloadsetting
+  value:
+  - Download Setting
+  - 下载设置
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: speedlimit
+  value:
+  - Speed limit
+  - 限速
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: multithreaded
+  value:
+  - Multi Threaded
+  - 多线程
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: settingtime
+  value:
+  - Setting Fixed Time
+  - 设置固定时间
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: downloadlinklist
+  value:
+  - Download Link List
+  - 下载地址列表
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: downloadoptions
+  value:
+  - Download multiple options
+  - 下载复选项
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: 
+  value:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: 
+  value:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: 
+  value:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: 
+  value:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 

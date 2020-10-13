@@ -31,7 +31,7 @@ func appDataDir() string {
 	return datadir
 }
 
-func userVideoDir() string {
+func defaultVideoDir() string {
 	userDir := fmt.Sprintf("%s%s\\Videos", os.Getenv("HomeDrive"), os.Getenv("HOMEPATH"))
 	_, err := os.Stat(userDir)
 	if err != nil {
