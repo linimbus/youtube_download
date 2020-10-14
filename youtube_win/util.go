@@ -193,6 +193,22 @@ func WriteFull(w io.Writer, body []byte) error {
 	}
 }
 
+func TouchDir(dir string) error {
+	info, err := os.Stat(dir)
+	if err != nil {
+		err = os.MkdirAll(dir, 644)
+		if err != nil {
+			logs.Error(err.Error())
+			return err
+		}
+		return nil
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("[%s] is not directory", dir)
+	}
+	return nil
+}
+
 func init()  {
 	mathrand.Seed(time.Now().Unix())
 }

@@ -1,192 +1,185 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/youtube_download/youtube"
-	"io/ioutil"
+	"gopkg.in/yaml.v3"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
 
+type VideoDownload struct {
+	sync.WaitGroup
 
+	client    *youtube.Client
+	video     *youtube.Video
+	formats  []youtube.Format
+	download  *DownLoad
 
-type JobVideo struct {
-	ItagNo     int
-	Format     string
-	MimeType   string
-	FPS        int
-	Wight      int
-	Heght      int
-	Size       int
-	Finished   bool
-	FileName   string
+	savesize  int64
+	lastsize  int64
+
+	shutdown  bool
+	outputDir string
 }
 
-type Job struct {
-	Timestamp   string
+func NewVideoDownload(video *youtube.Video, weburl string, outputDir string, itagNos []int) (*VideoDownload, error) {
+	err := TouchDir(outputDir)
+	if err != nil {
+		logs.Error(err.Error())
+		return nil, err
+	}
 
-	DownLoadDir string
-	WebUrl      string
-	Reserve     bool
-	ItagNos     []int
-	From        string
+	httpclient, err := HttpClientGet(HttpProxyGet())
+	if err != nil {
+		logs.Error(err.Error())
+		return nil, err
+	}
 
-	TotalSize   int64
-	Status      string
+	vdl := new(VideoDownload)
+	vdl.client = &youtube.Client{
+		HTTPClient: httpclient.cli,
+	}
 
-	Tilte       string
-	Author      string
-	Duration    time.Duration
+	if video == nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		video, err = vdl.client.GetVideoContext(ctx, weburl)
+		cancel()
 
-	Video       []JobVideo
-}
-
-type JobCtrl struct {
-	sync.RWMutex
-
-	video map[string]*youtube.Video
-	cache []*Job
-}
-
-func JobAdd(v *youtube.Video, itagno []int, weburl string, reserve bool, downloaddir string) error {
-	job := new(Job)
-	job.Timestamp = GetTimeStampNumber()
-	job.WebUrl = weburl
-	job.ItagNos = itagno
-	job.DownLoadDir = downloaddir
-	job.Reserve = reserve
-
-	jobCtrl.Lock()
-	jobCtrl.cache = append(jobCtrl.cache, job)
-	jobSync()
-	jobCtrl.Unlock()
-
-	return nil
-}
-
-var jobCtrl *JobCtrl
-
-
-
-func JobStart()  {
-
-}
-
-func JobDel(title string, deleteFile bool) error {
-	jobCtrl.Lock()
-	defer jobCtrl.Unlock()
-
-	for _, v := range jobCtrl.cache {
-		if v.Timestamp == title {
-			//
+		if err != nil {
+			logs.Error(err.Error())
+			return nil, err
 		}
 	}
-	
-	jobSync()
-	return nil
-}
 
-func job2Item(i int,job *Job) *JobItem {
-	return &JobItem{
-		Index: i,
-		Title: job.Timestamp,
-		ProgressRate: 0,
-		Speed: 0,
-		Size: int(job.TotalSize),
-		From: job.From,
-		Status: "ready",
-	}
-}
+	vdl.outputDir = outputDir
+	vdl.video = video
+	vdl.formats = make([]youtube.Format, 0)
 
-func jobSyncToConsole()  {
-	jobCtrl.RLock()
-	defer jobCtrl.RUnlock()
-
-	var output []*JobItem
-	maxLen := len(jobCtrl.cache)
-	for i := 0; i < maxLen; i++ {
-		output = append(output,
-			job2Item(i, jobCtrl.cache[maxLen-1-i]),
-		)
+	for _, itag := range itagNos {
+		for _,format := range video.Formats {
+			if format.ItagNo != itag {
+				vdl.formats = append(vdl.formats, format)
+				break
+			}
+		}
 	}
 
-	JobTalbeUpdate(output)
+	videoInfomationSave(vdl)
+
+	vdl.Add(1)
+	go vdl.downLoader()
+
+	return vdl, nil
 }
 
-func jobSchedTask()  {
-	for  {
-
-
-		time.Sleep(time.Second)
-	}
-}
-
-func jobConsoleShow()  {
-	for  {
-		jobSyncToConsole()
-		time.Sleep(2 * time.Second)
-	}
-}
-
-func jobSync()  {
-	file := fmt.Sprintf("%s\\job.json", appDataDir())
-
-	var output []Job
-	for _, v := range jobCtrl.cache {
-		output = append(output, *v)
-	}
-
-	value, err := json.Marshal(output)
+func videoInfomationSave(vdl *VideoDownload)  {
+	value, err := yaml.Marshal(vdl.video)
 	if err != nil {
 		logs.Error(err.Error())
 		return
 	}
-
-	err = SaveToFile(file, value)
+	filepath := fmt.Sprintf("%s\\%s_video_info.yaml",
+		vdl.outputDir, GetTimeStampNumber())
+	err = SaveToFile(filepath, value)
 	if err != nil {
 		logs.Error(err.Error())
 		return
 	}
 }
 
-func jobLoad() error {
-	file := fmt.Sprintf("%s\\job.json", appDataDir())
-	value, err := ioutil.ReadFile(file)
-	if err != nil {
-		logs.Error(err.Error())
-		return nil
-	}
+func FormatToFileName(f *youtube.Format) string {
+	values := strings.Split(f.MimeType, ";")
+	values = strings.Split(values[0],"/")
 
-	var output []Job
-	err = json.Unmarshal(value, &output)
-	if err != nil {
-		logs.Error(err.Error())
-		return err
+	var suffix = "mp4"
+	if len(values) == 2 {
+		suffix = values[1]
 	}
+	formatType := values[0]
 
-	for _, v := range output {
-		temp := v
-		jobCtrl.cache = append(jobCtrl.cache, &temp)
+	if strings.ToLower(formatType) == "audio" {
+		return fmt.Sprintf("%s_%s.%s",
+			formatType, f.Quality, suffix)
+	} else {
+		return fmt.Sprintf("%s_%s[%dp].%s",
+			formatType, f.Quality, f.Height, suffix)
 	}
-
-	return nil
 }
 
-func JobInit() error {
-	jobCtrl = new(JobCtrl)
-	jobCtrl.cache = make([]*Job, 0)
+func (vdl *VideoDownload)downLoader() {
+	defer vdl.Done()
 
-	err := jobLoad()
-	if err != nil {
-		logs.Error(err.Error())
-		return err
+	for _, format := range vdl.formats {
+		if vdl.shutdown {
+			logs.Info("download %s task shutdown", vdl.outputDir)
+			break
+		}
+
+		filename := FormatToFileName(&format)
+		filepath := fmt.Sprintf("%s\\%s", vdl.outputDir, filename)
+
+		file, err := os.Create(filepath)
+		if err != nil {
+			logs.Error(err.Error())
+			continue
+		}
+
+		dl, err := NewDownLoad(vdl.client, vdl.video, &format, file)
+		if err != nil {
+			logs.Error(err.Error())
+			continue
+		}
+		vdl.download = dl
+		dl.Wait()
 	}
 
-	go jobSchedTask()
-	go jobConsoleShow()
+	vdl.shutdown = true
+}
 
-	return nil
+func (vdl *VideoDownload)Video() *youtube.Video {
+	return vdl.video
+}
+
+func (vdl *VideoDownload)Formats() []youtube.Format {
+	return vdl.formats
+}
+
+func (vdl *VideoDownload)Done() bool {
+	return vdl.shutdown
+}
+
+func (vdl *VideoDownload)Stat() int64 {
+	dl := vdl.download
+	if dl == nil {
+		return 0
+	}
+	savesize, _ := dl.Stat()
+	if savesize < vdl.lastsize {
+		vdl.lastsize = savesize
+		return savesize
+	}
+	tempsize := savesize - vdl.lastsize
+	vdl.lastsize = savesize
+	return tempsize
+}
+
+func (vdl *VideoDownload)Stop() {
+	if vdl.shutdown {
+		return
+	}
+	vdl.shutdown = true
+	dl := vdl.download
+	if dl != nil {
+		err := dl.Cancel()
+		if err != nil {
+			logs.Error(err.Error())
+		}
+	}
+	vdl.Wait()
 }
 
