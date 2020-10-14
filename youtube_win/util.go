@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
+	"io"
 	"io/ioutil"
 	"net"
 	"os"
@@ -174,6 +175,22 @@ func StringClone(list []string) []string {
 	output := make([]string, len(list))
 	copy(output, list)
 	return output
+}
+
+func WriteFull(w io.Writer, body []byte) error {
+	begin := 0
+	for  {
+		cnt, err := w.Write(body[begin:])
+		if cnt > 0 {
+			begin += cnt
+		}
+		if begin >= len(body) {
+			return err
+		}
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func init()  {

@@ -128,6 +128,13 @@ func JobTalbeUpdate(item []*JobItem )  {
 	jobTable.Lock()
 	defer jobTable.Unlock()
 
+	oldItem := jobTable.items
+	if len(oldItem) == len(item) {
+		for i, v := range item {
+			v.checked = oldItem[i].checked
+		}
+	}
+
 	jobTable.items = item
 	jobTable.PublishRowsReset()
 	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)

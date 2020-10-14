@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+
+
 type JobVideo struct {
 	ItagNo     int
 	Format     string
@@ -56,8 +58,6 @@ func JobAdd(v *youtube.Video, itagno []int, weburl string, reserve bool, downloa
 	job.DownLoadDir = downloaddir
 	job.Reserve = reserve
 
-	fmt.Println(job)
-
 	jobCtrl.Lock()
 	jobCtrl.cache = append(jobCtrl.cache, job)
 	jobSync()
@@ -67,6 +67,26 @@ func JobAdd(v *youtube.Video, itagno []int, weburl string, reserve bool, downloa
 }
 
 var jobCtrl *JobCtrl
+
+
+
+func JobStart()  {
+
+}
+
+func JobDel(title string, deleteFile bool) error {
+	jobCtrl.Lock()
+	defer jobCtrl.Unlock()
+
+	for _, v := range jobCtrl.cache {
+		if v.Timestamp == title {
+			//
+		}
+	}
+	
+	jobSync()
+	return nil
+}
 
 func job2Item(i int,job *Job) *JobItem {
 	return &JobItem{
@@ -86,7 +106,7 @@ func jobSyncToConsole()  {
 
 	var output []*JobItem
 	maxLen := len(jobCtrl.cache)
-	for i:=0; i<maxLen; i++ {
+	for i := 0; i < maxLen; i++ {
 		output = append(output,
 			job2Item(i, jobCtrl.cache[maxLen-1-i]),
 		)
@@ -97,8 +117,14 @@ func jobSyncToConsole()  {
 
 func jobSchedTask()  {
 	for  {
-		// running task
 
+
+		time.Sleep(time.Second)
+	}
+}
+
+func jobConsoleShow()  {
+	for  {
 		jobSyncToConsole()
 		time.Sleep(2 * time.Second)
 	}
@@ -159,6 +185,7 @@ func JobInit() error {
 	}
 
 	go jobSchedTask()
+	go jobConsoleShow()
 
 	return nil
 }
