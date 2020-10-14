@@ -63,7 +63,7 @@ func NewVideoDownload(video *youtube.Video, weburl string, outputDir string, ita
 
 	for _, itag := range itagNos {
 		for _,format := range video.Formats {
-			if format.ItagNo != itag {
+			if format.ItagNo == itag {
 				vdl.formats = append(vdl.formats, format)
 				break
 			}
