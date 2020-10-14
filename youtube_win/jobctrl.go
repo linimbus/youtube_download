@@ -148,6 +148,8 @@ func jobRunning(job *Job)  {
 		jobSync()
 	}()
 
+	job.SumSize = 0
+
 	var err error
 	outputDir := fmt.Sprintf("%s\\%s", BaseSettingGet().HomeDir, job.Timestamp)
 	job.download, err = NewVideoDownload(job.video, job.WebUrl, outputDir, job.ItagNos )
@@ -156,7 +158,8 @@ func jobRunning(job *Job)  {
 		job.Status = STATUS_STOP
 		return
 	}
-	logs.Info("new video download task: %s", job.WebUrl)
+
+	logs.Info("video download task add: %s", job.WebUrl)
 
 	job.Status = STATUS_LOAD
 	job.download.Wait()

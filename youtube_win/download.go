@@ -11,6 +11,7 @@ import (
 
 type DownLoad struct {
 	sync.WaitGroup
+
 	cancelfunc context.CancelFunc
 	close     bool
 	err       error
@@ -43,7 +44,9 @@ func (d *DownLoad)downloadCopy(dest io.WriteCloser, src io.ReadCloser)  {
 	src.Close()
 	dest.Close()
 	d.Done()
+
 	d.close = true
+	logs.Info("download thread close")
 }
 
 func NewDownLoad(client * youtube.Client, video * youtube.Video, format * youtube.Format, file io.WriteCloser ) (*DownLoad, error) {
@@ -55,17 +58,17 @@ func NewDownLoad(client * youtube.Client, video * youtube.Video, format * youtub
 	}
 
 	dl := new(DownLoad)
-
 	dl.cancelfunc = cancelfunc
 	dl.langth = rsp.ContentLength
 	dl.Add(1)
-
 	go dl.downloadCopy(file, rsp.Body)
+
 	return dl, nil
 }
 
-func (d *DownLoad)Done() bool {
-	return d.close
+func (d *DownLoad)WaitDone()  {
+	d.Wait()
+	logs.Info("download wait success")
 }
 
 func (d *DownLoad)Cancel() error {

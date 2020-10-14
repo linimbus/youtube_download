@@ -78,7 +78,15 @@ func NewVideoDownload(video *youtube.Video, weburl string, outputDir string, ita
 	return vdl, nil
 }
 
+type VideoInfo struct {
+	Title    string
+	Author   string
+	Duration time.Duration
+}
+
 func videoInfomationSave(vdl *VideoDownload)  {
+
+
 	value, err := yaml.Marshal(vdl.video)
 	if err != nil {
 		logs.Error(err.Error())
@@ -114,6 +122,7 @@ func FormatToFileName(f *youtube.Format) string {
 func (vdl *VideoDownload)downLoader() {
 	defer vdl.Done()
 
+	logs.Info("video download %s starting", vdl.outputDir)
 	for _, format := range vdl.formats {
 		if vdl.shutdown {
 			logs.Info("download %s task shutdown", vdl.outputDir)
@@ -135,11 +144,12 @@ func (vdl *VideoDownload)downLoader() {
 			continue
 		}
 		vdl.download = dl
-		dl.Wait()
 
+		dl.WaitDone()
 		vdl.totalszie += dl.langth
 	}
 
+	logs.Info("video download %s finish", vdl.outputDir)
 	vdl.shutdown = true
 }
 
@@ -149,10 +159,6 @@ func (vdl *VideoDownload)Video() *youtube.Video {
 
 func (vdl *VideoDownload)Formats() []youtube.Format {
 	return vdl.formats
-}
-
-func (vdl *VideoDownload)Done() bool {
-	return vdl.shutdown
 }
 
 func (vdl *VideoDownload)Stat() int64 {
