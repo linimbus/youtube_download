@@ -22,6 +22,7 @@ type VideoDownload struct {
 
 	savesize  int64
 	lastsize  int64
+	totalszie int64
 
 	shutdown  bool
 	outputDir string
@@ -83,8 +84,7 @@ func videoInfomationSave(vdl *VideoDownload)  {
 		logs.Error(err.Error())
 		return
 	}
-	filepath := fmt.Sprintf("%s\\%s_video_info.yaml",
-		vdl.outputDir, GetTimeStampNumber())
+	filepath := fmt.Sprintf("%s\\video_info.yaml", vdl.outputDir)
 	err = SaveToFile(filepath, value)
 	if err != nil {
 		logs.Error(err.Error())
@@ -136,6 +136,8 @@ func (vdl *VideoDownload)downLoader() {
 		}
 		vdl.download = dl
 		dl.Wait()
+
+		vdl.totalszie += dl.langth
 	}
 
 	vdl.shutdown = true

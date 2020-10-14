@@ -40,10 +40,9 @@ func GetTimeStampNumber() string {
 	now := time.Now()
 	year, month, day := now.Date()
 	return fmt.Sprintf(
-		"%4d%02d%02d%02d%02d%02d.%06d",
+		"%4d%02d%02d%02d%02d%02d",
 		year, month, day,
-		now.Hour(), now.Minute(), now.Second(),
-		now.Nanosecond()/int(time.Microsecond))
+		now.Hour(), now.Minute(), now.Second())
 }
 
 func SaveToFile(name string, body []byte) error {

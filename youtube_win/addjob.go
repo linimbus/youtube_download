@@ -307,7 +307,7 @@ func addJobToTask(v *VideoModel) error {
 		return fmt.Errorf("no select!")
 	}
 
-	return JobAdd(v.info, itagno, v.WebUrl, v.Keep, v.DownloadDir)
+	return JobAdd(v.info, itagno, v.WebUrl, v.Keep)
 }
 
 func AddJobOnce()  {

@@ -97,17 +97,26 @@ func (m *JobModel) Sort(col int, order walk.SortOrder) error {
 	return m.SorterBase.Sort(col, order)
 }
 
+const (
+	STATUS_STOP = "stop"
+	STATUS_DONE = "done"
+	STATUS_WAIT = "wait"
+	STATUS_LOAD = "load"
+	STATUS_RESV = "reserver"
+)
+
+
 func StatusToIcon(status string) walk.Image {
 	switch status {
-	case "stop":
+	case STATUS_STOP:
 		return ICON_STATUS_STOP
-	case "done":
+	case STATUS_DONE:
 		return ICON_STATUS_DONE
-	case "wait":
+	case STATUS_WAIT:
 		return ICON_STATUS_WAIT
-	case "reserver":
+	case STATUS_RESV:
 		return ICON_STATUS_RESERVER
-	case "load":
+	case STATUS_LOAD:
 		return ICON_STATUS_LOAD
 	default:
 		return ICON_STATUS_WAIT
