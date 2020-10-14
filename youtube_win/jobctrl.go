@@ -132,7 +132,6 @@ func jobSyncToConsole()  {
 		)
 	}
 	jobCtrl.RUnlock()
-
 	JobTalbeUpdate(output)
 }
 
@@ -159,8 +158,9 @@ func jobRunning(job *Job)  {
 	}
 	logs.Info("new video download task: %s", job.WebUrl)
 
-	job.download.Wait()
 	job.Status = STATUS_LOAD
+	job.download.Wait()
+	job.Status = STATUS_DONE
 	job.Finished = true
 }
 
@@ -200,6 +200,7 @@ func jobSchedTask() {
 func jobConsoleShow()  {
 	for  {
 		jobSyncToConsole()
+		jobSync()
 		time.Sleep(2 * time.Second)
 	}
 }
