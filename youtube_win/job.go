@@ -39,6 +39,9 @@ func WebVideoGet(client *youtube.Client, weburl string) (*youtube.Video, error) 
 			logs.Error(err.Error())
 			continue
 		}
+		if video != nil {
+			break
+		}
 	}
 
 	if err != nil {
