@@ -37,6 +37,14 @@ func ToolBarInit() ToolBar {
 			Action{
 				Text: LangValue("delete"),
 				Image: ICON_TOOL_DEL,
+				OnTriggered: func() {
+					list := JobTableSelectList()
+					if len(list) == 0 {
+						ErrorBoxAction(MainWindowsCtrl(), LangValue("nochoiceobject"))
+						return
+					}
+					DeleteDiaglog(list)
+				},
 			},
 			Action{
 				Text: LangValue("start"),

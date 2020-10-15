@@ -182,6 +182,20 @@ func JobTableSelectAll()  {
 	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)
 }
 
+func JobTableSelectList() []string {
+	jobTable.RLock()
+	defer jobTable.RUnlock()
+
+	var output []string
+	for _, v := range jobTable.items {
+		if v.checked {
+			output = append(output, v.Title)
+		}
+	}
+
+	return output
+}
+
 func JobTableSelectStatus(status string)  {
 	jobTable.Lock()
 	defer jobTable.Unlock()

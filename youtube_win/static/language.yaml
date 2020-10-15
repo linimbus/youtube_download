@@ -1168,3 +1168,23 @@
   - 
   - 
   - 
+- key: deletefile
+  value:
+  - 
+  - 同时删除文件
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: deleteconfirm
+  value:
+  - 
+  - 删除任务清单
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
