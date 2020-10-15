@@ -20,6 +20,7 @@ type Job struct {
 	Reserve     bool
 	ItagNos     []int
 	From        string
+	OutputDir   string
 
 	TotalSize   int64
 	SumSize     int64
@@ -69,6 +70,7 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 	job.From = parseFrom(weburl)
 	job.video = video
 	job.TotalSize = videoTotalSize(video, itagno)
+	job.OutputDir = fmt.Sprintf("%s\\%s", BaseSettingGet().HomeDir, job.Timestamp)
 
 	if reserve {
 		job.Status = STATUS_RESV
@@ -114,10 +116,11 @@ func job2Item(i int, job *Job) *JobItem {
 		Index: i,
 		Title: job.Timestamp,
 		ProgressRate: int(rate),
-		Speed: int(speed)/2,
+		Speed: int(speed * 8)/2,
 		Size: int(job.TotalSize),
 		From: job.From,
 		Status: job.Status,
+		outputDir: job.OutputDir,
 	}
 }
 
@@ -132,7 +135,12 @@ func jobSyncToConsole()  {
 		)
 	}
 	jobCtrl.RUnlock()
+	var speed int
+	for _, v := range output {
+		speed += v.Speed
+	}
 	JobTalbeUpdate(output)
+	UpdateStatusFlow(speed)
 }
 
 func jobRunning(job *Job)  {
@@ -151,8 +159,7 @@ func jobRunning(job *Job)  {
 	job.SumSize = 0
 
 	var err error
-	outputDir := fmt.Sprintf("%s\\%s", BaseSettingGet().HomeDir, job.Timestamp)
-	job.download, err = NewVideoDownload(job.video, job.WebUrl, outputDir, job.ItagNos )
+	job.download, err = NewVideoDownload(job.video, job.WebUrl, job.OutputDir, job.ItagNos )
 	if err != nil {
 		logs.Error(err.Error())
 		job.Status = STATUS_STOP

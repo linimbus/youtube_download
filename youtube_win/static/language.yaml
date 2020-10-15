@@ -388,16 +388,6 @@
   - téléchargement de rendez-vous
   - Termin herunterladen
   - descargar cita
-- key: all
-  value:
-  - All
-  - 全部
-  - 全部
-  - すべて
-  - 모두
-  - tout
-  - alle
-  - todos
 - key: title
   value:
   - Title
@@ -1138,40 +1128,40 @@
   - 
   - 
   - 
-- key: 
+- key: statusdone
   value:
+  - Select Done
+  - 选择完成
   - 
   - 
   - 
   - 
   - 
   - 
-  - 
-  - 
-- key: 
+- key: statusstop
   value:
+  - Select Stop
+  - 选择停止
   - 
   - 
   - 
   - 
   - 
   - 
-  - 
-  - 
-- key: 
+- key: all
   value:
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-- key: 
+  - Select All
+  - 选择全部
+  - 选择全部
+  - すべて
+  - 모두
+  - tout
+  - alle
+  - todos
+- key: statusload
   value:
-  - 
-  - 
+  - Select Loading
+  - 选择下载中
   - 
   - 
   - 

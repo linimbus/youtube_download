@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	ytdl "github.com/lixiangyun/youtube_download/youtube/downloader"
@@ -37,13 +38,25 @@ func VideoInfoGet(link string, dir string) (*youtube.Video, error) {
 	}
 	dl.HTTPClient = httpclient.cli
 
-	videoInfo, err := dl.GetVideo(link)
+	var video *youtube.Video
+
+	for i := 0; i < 3; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
+		video, err = dl.GetVideoContext(ctx, link)
+		cancel()
+		if err != nil {
+			logs.Error(err.Error())
+			continue
+		} else {
+			break
+		}
+	}
+
 	if err != nil {
-		logs.Error(err.Error())
 		return nil, err
 	}
 
-	return videoInfo, nil
+	return video, nil
 }
 
 func StringCat(s string, flag string) string {

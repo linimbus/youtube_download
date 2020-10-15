@@ -18,6 +18,7 @@ type JobItem struct {
 	From         string
 	Status       string
 
+	outputDir    string
 	checked      bool
 }
 
@@ -46,6 +47,9 @@ func (n *JobModel)Value(row, col int) interface{} {
 	case 2:
 		return fmt.Sprintf("%d%%", item.ProgressRate)
 	case 3:
+		if item.Speed == 0 {
+			return "-"
+		}
 		return fmt.Sprintf("%s/s", ByteViewLite(int64(item.Speed)))
 	case 4:
 		return ByteView(int64(item.Size))
@@ -101,10 +105,9 @@ const (
 	STATUS_STOP = "stop"
 	STATUS_DONE = "done"
 	STATUS_WAIT = "wait"
-	STATUS_LOAD = "load"
+	STATUS_LOAD = "loading"
 	STATUS_RESV = "reserver"
 )
-
 
 func StatusToIcon(status string) walk.Image {
 	switch status {
@@ -149,9 +152,57 @@ func JobTalbeUpdate(item []*JobItem )  {
 	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)
 }
 
+func JobDir(idx int) string {
+	jobTable.RLock()
+	defer jobTable.RUnlock()
+
+	if idx >= 0 && idx < len(jobTable.items) {
+		return jobTable.items[idx].outputDir
+	}
+
+	return ""
+}
+
+func JobTableSelectAll()  {
+	jobTable.Lock()
+	defer jobTable.Unlock()
+
+	done := true
+	for _, v := range jobTable.items {
+		if !v.checked {
+			done = false
+		}
+	}
+
+	for _, v := range jobTable.items {
+		v.checked = !done
+	}
+
+	jobTable.PublishRowsReset()
+	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)
+}
+
+func JobTableSelectStatus(status string)  {
+	jobTable.Lock()
+	defer jobTable.Unlock()
+
+	for _, v := range jobTable.items {
+		v.checked = false
+	}
+
+	for _, v := range jobTable.items {
+		if v.Status == status {
+			v.checked = true
+		}
+	}
+
+	jobTable.PublishRowsReset()
+	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)
+}
+
 var tableView *walk.TableView
 
-func TableWight() Widget {
+func TableWight() []Widget {
 	var err error
 
 	jobBitmap, err = walk.NewBitmap(walk.Size{100, 1})
@@ -171,49 +222,100 @@ func TableWight() Widget {
 		}
 	}
 
-	return TableView{
-		AssignTo: &tableView,
-		AlternatingRowBG: true,
-		ColumnsOrderable: true,
-		CheckBoxes: true,
-		Columns: []TableViewColumn{
-			{Title: "#", Width: 30},
-			{Title: LangValue("title"), Width: 160},
-			{Title: LangValue("progressrate")},
-			{Title: LangValue("speed"), Width: 80},
-			{Title: LangValue("size"), Width: 80},
-			{Title: LangValue("from"), Width: 100},
-			{Title: LangValue("status"), Width: 80},
+	return []Widget{
+		Label{
+			Text: LangValue("downloadlist"),
 		},
-		StyleCell: func(style *walk.CellStyle) {
-			item := jobTable.items[style.Row()]
-
-			if style.Row()%2 == 0 {
-				style.BackgroundColor = walk.RGB(248, 248, 255)
-			} else {
-				style.BackgroundColor = walk.RGB(220, 220, 220)
-			}
-
-			switch style.Col() {
-			case 2:
-				if canvas := style.Canvas(); canvas != nil {
-					bounds := style.Bounds()
-					bounds2 := bounds
-
-					bounds.Width = int(float64(bounds.Width) * float64(item.ProgressRate))/100
-					bounds.Height -= 1
-					canvas.DrawBitmapPartWithOpacity(jobBitmap,
-						bounds,
-						walk.Rectangle{0, 0, item.ProgressRate, 1},
-						80)
-
-					canvas.DrawText(fmt.Sprintf("%d%%", item.ProgressRate), tableView.Font(), 0, bounds2, walk.TextLeft)
+		TableView{
+			AssignTo: &tableView,
+			AlternatingRowBG: true,
+			ColumnsOrderable: true,
+			CheckBoxes: true,
+			OnItemActivated: func() {
+				dir := JobDir(tableView.CurrentIndex())
+				if dir != "" {
+					OpenBrowserWeb(dir)
 				}
-			case 6:
-				style.Image = StatusToIcon(item.Status)
-			}
+			},
+			Columns: []TableViewColumn{
+				{Title: "#", Width: 30},
+				{Title: LangValue("title"), Width: 160},
+				{Title: LangValue("progressrate"), Width: 120},
+				{Title: LangValue("speed"), Width: 80},
+				{Title: LangValue("size"), Width: 80},
+				{Title: LangValue("from"), Width: 120},
+				{Title: LangValue("status"), Width: 80},
+			},
+			StyleCell: func(style *walk.CellStyle) {
+				item := jobTable.items[style.Row()]
+
+				if style.Row()%2 == 0 {
+					style.BackgroundColor = walk.RGB(248, 248, 255)
+				} else {
+					style.BackgroundColor = walk.RGB(220, 220, 220)
+				}
+
+				switch style.Col() {
+				case 2:
+					if canvas := style.Canvas(); canvas != nil {
+						bounds := style.Bounds()
+						bounds2 := bounds
+
+						bounds.Width = int(float64(bounds.Width) * float64(item.ProgressRate))/100
+						bounds.Height -= 1
+						canvas.DrawBitmapPartWithOpacity(jobBitmap,
+							bounds,
+							walk.Rectangle{0, 0, item.ProgressRate, 1},
+							80)
+
+						canvas.DrawText(fmt.Sprintf("%d%%", item.ProgressRate), tableView.Font(), 0, bounds2, walk.TextLeft)
+					}
+				case 6:
+					style.Image = StatusToIcon(item.Status)
+				}
+			},
+			Model:jobTable,
 		},
-		Model:jobTable,
+		Composite{
+			Layout: HBox{MarginsZero: true},
+			Children: []Widget{
+				PushButton{
+					Text: LangValue("all"),
+					OnClicked: func() {
+						go func() {
+							JobTableSelectAll()
+						}()
+					},
+				},
+				PushButton{
+					Text: LangValue("statusdone"),
+					OnClicked: func() {
+						go func() {
+							JobTableSelectStatus(STATUS_DONE)
+						}()
+					},
+				},
+				PushButton{
+					Text: LangValue("statusstop"),
+					OnClicked: func() {
+						go func() {
+							JobTableSelectStatus(STATUS_STOP)
+						}()
+					},
+				},
+				PushButton{
+					Text: LangValue("statusload"),
+					OnClicked: func() {
+						go func() {
+							JobTableSelectStatus(STATUS_LOAD)
+						}()
+					},
+				},
+				HSpacer{
+
+				},
+			},
+		},
 	}
 }
 

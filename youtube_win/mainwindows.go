@@ -99,27 +99,20 @@ func mainWindowBuilder(mw **walk.MainWindow) *MainWindow {
 		Layout:  VBox{
 			Alignment: AlignHNearVNear,
 			MarginsZero: true,
-			Margins: Margins{Left: 10, Top: 5},
+			Margins: Margins{Left: 10, Top: 10},
 		},
 		MenuItems: MenuBarInit(),
 		StatusBarItems: StatusBarInit(),
 		Children: []Widget{
 			Composite{
-				Layout: HBox{
-
-				},
+				Layout: HBox{ MarginsZero: true},
 				Children: []Widget{
 					ToolBarInit(),
 				},
 			},
 			Composite{
 				Layout: VBox{MarginsZero: true, Margins: Margins{Right: 10, Bottom: 10}},
-				Children: []Widget{
-					Label{
-						Text: LangValue("downloadlist"),
-					},
-					TableWight(),
-				},
+				Children: TableWight(),
 			},
 		},
 	}

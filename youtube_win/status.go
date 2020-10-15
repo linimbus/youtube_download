@@ -11,12 +11,15 @@ var statusFlow *walk.StatusBarItem
 var statusTime *walk.StatusBarItem
 
 func statusFlowGet(flow int) string {
+	if flow == 0 {
+		return " "
+	}
 	return fmt.Sprintf(" %s/s", ByteViewLite(int64(flow)) )
 }
 
 func UpdateStatusFlow(flow int)  {
 	if statusFlow != nil {
-		statusFlow.SetText( statusFlowGet(flow) )
+		statusFlow.SetText(statusFlowGet(flow) )
 	}
 }
 

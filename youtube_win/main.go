@@ -3,7 +3,12 @@ package main
 import "github.com/astaxie/beego/logs"
 
 func main()  {
-	err := FileInit()
+	err := DebugInit()
+	if err != nil {
+		logs.Error(err.Error())
+		return
+	}
+	err = FileInit()
 	if err != nil {
 		logs.Error(err.Error())
 		return
