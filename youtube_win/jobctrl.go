@@ -7,6 +7,7 @@ import (
 	"github.com/lixiangyun/youtube_download/youtube"
 	"io/ioutil"
 	"net/url"
+	"os"
 	"sync"
 	"time"
 )
@@ -122,6 +123,29 @@ func job2Item(i int, job *Job) *JobItem {
 		Status: job.Status,
 		outputDir: job.OutputDir,
 	}
+}
+
+func JobDelete(list []string, file bool) error {
+	jobCtrl.Lock()
+	defer jobCtrl.Unlock()
+
+	for _, v := range list {
+		for i, job := range jobCtrl.cache {
+			if job.Timestamp == v {
+				if file {
+					err := os.RemoveAll(job.OutputDir)
+					if err != nil {
+						logs.Error(err.Error())
+					}
+				}
+				jobCtrl.cache = append(jobCtrl.cache[:i], jobCtrl.cache[i+1:]...)
+				break
+			}
+		}
+	}
+	jobSync()
+
+	return nil
 }
 
 func jobSyncToConsole()  {

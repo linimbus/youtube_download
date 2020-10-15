@@ -10,6 +10,8 @@ import (
 func DeleteDiaglog(list []string)  {
 	var dlg *walk.Dialog
 	var acceptPB, cancelPB *walk.PushButton
+	var deleteFile bool
+	var deleteBut *walk.RadioButton
 
 	var show string
 	for _, v := range list {
@@ -38,8 +40,12 @@ func DeleteDiaglog(list []string)  {
 						Alignment: AlignHNearVCenter,
 					},
 					RadioButton{
+						AssignTo: &deleteBut,
 						Alignment: AlignHNearVCenter,
 						Text: LangValue("deletefile"),
+						OnClicked: func() {
+							deleteBut.SetChecked(!deleteFile)
+						},
 					},
 				},
 			},
@@ -49,8 +55,10 @@ func DeleteDiaglog(list []string)  {
 					PushButton{
 						Text: LangValue("accpet"),
 						OnClicked: func() {
-
-							dlg.Accept()
+							go func() {
+								JobDelete(list, deleteFile)
+								dlg.Accept()
+							}()
 						},
 					},
 					PushButton{
