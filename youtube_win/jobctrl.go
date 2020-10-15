@@ -35,7 +35,8 @@ type Job struct {
 }
 
 type JobCtrl struct {
-	sync.RWMutex
+	sync.Mutex
+
 	cache []*Job
 	downs []*Job
 	queue chan *Job
@@ -114,7 +115,7 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 	jobCtrl.Lock()
 	jobCtrl.cache = append(jobCtrl.cache, job)
 	if !reserve {
-		jobCtrl.queue <- job
+		jobToQueue(job)
 	}
 	jobSync()
 	jobCtrl.Unlock()
@@ -153,22 +154,54 @@ func job2Item(i int, job *Job) *JobItem {
 	}
 }
 
+func RemoveAllFile(path string)  {
+	Separator := fmt.Sprintf("%c",os.PathSeparator)
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		logs.Error(err.Error())
+		return
+	}
+	for _, file := range files {
+		filepath := path + Separator + file.Name()
+		if file.IsDir() {
+			RemoveAllFile(filepath)
+		} else {
+			err = os.Remove(filepath)
+			if err != nil {
+				logs.Error(err.Error())
+			}
+		}
+	}
+	err = os.RemoveAll(path)
+	if err != nil {
+		logs.Error(err.Error())
+	}
+}
+
 func JobDelete(list []string, file bool) error {
 	jobCtrl.Lock()
 	defer jobCtrl.Unlock()
 
-	// to stop downs
-	// to remove queue
+	for _, v := range list {
+		for i, job := range jobCtrl.downs {
+			if job.Timestamp == v {
+				dl := job.download
+				if dl != nil {
+					dl.Stop()
+				}
+				jobCtrl.downs = append(jobCtrl.downs[:i], jobCtrl.downs[i+1:]...)
+				break
+			}
+		}
+	}
 
 	for _, v := range list {
 		for i, job := range jobCtrl.cache {
 			if job.Timestamp == v {
 				if file {
-					err := os.RemoveAll(job.OutputDir)
-					if err != nil {
-						logs.Error(err.Error())
-					}
+					RemoveAllFile(job.OutputDir)
 				}
+				job.Status = STATUS_DEL
 				jobCtrl.cache = append(jobCtrl.cache[:i], jobCtrl.cache[i+1:]...)
 				break
 			}
@@ -176,24 +209,29 @@ func JobDelete(list []string, file bool) error {
 	}
 	jobSync()
 
+	logs.Info("job %v delete success", list)
+
 	return nil
 }
 
 func jobSyncToConsole()  {
 	var output []*JobItem
 
-	jobCtrl.RLock()
+	jobCtrl.Lock()
 	maxLen := len(jobCtrl.cache)
 	for i := 0; i < maxLen; i++ {
 		output = append(output,
 			job2Item(i, jobCtrl.cache[maxLen-1-i]),
 		)
 	}
-	jobCtrl.RUnlock()
+	jobSync()
+	jobCtrl.Unlock()
+
 	var speed int
 	for _, v := range output {
 		speed += v.Speed
 	}
+
 	JobTalbeUpdate(output)
 	UpdateStatusFlow(speed)
 }
@@ -207,8 +245,8 @@ func jobRunning(job *Job)  {
 				break
 			}
 		}
-		jobCtrl.Unlock()
 		jobSync()
+		jobCtrl.Unlock()
 	}()
 
 	job.SumSize = 0
@@ -229,43 +267,103 @@ func jobRunning(job *Job)  {
 	job.Finished = true
 }
 
-func jobSchedTask() {
-	for  {
-		time.Sleep(2 * time.Second)
+func TimeEqual(t1 time.Time, t2 time.Time) bool {
+	now := time.Now()
+	t11 := time.Date(now.Year(), now.Month(), now.Day(),
+		t1.Hour(), t1.Minute(), 0,
+		0, now.Location())
+	t22 := time.Date(now.Year(), now.Month(), now.Day(),
+		t2.Hour(), t2.Minute(), 0,
+		0, now.Location())
+	return t11.Equal(t22)
+}
 
-		cfg := BaseSettingGet()
+func DateEqual(t1 time.Time, t2 time.Time) bool {
+	t11 := time.Date(t1.Year(), t1.Month(), t1.Day(),
+		t1.Hour(), t1.Minute(), 0,
+		0, t1.Location())
+	t22 := time.Date(t2.Year(), t2.Month(), t2.Day(),
+		t2.Hour(), t2.Minute(), 0,
+		0, t2.Location())
+	return t11.Equal(t22)
+}
+
+func jobReserverToQueue(cfg *KeepCfg)  {
+	logs.Info("keep timeout %v", cfg)
+
+	for _, v := range jobCtrl.cache {
+		if !v.Finished && v.Reserve {
+			jobToQueue(v)
+			v.Reserve = false
+		}
+	}
+}
+
+func jobReserverTask()  {
+	for {
+		time.Sleep(10 * time.Second)
 
 		jobCtrl.Lock()
-		if cfg.MultiThreaded == len(jobCtrl.downs) {
-			jobCtrl.Unlock()
-			continue
-		}
 
-		if cfg.MultiThreaded < len(jobCtrl.downs) {
-			// shutdown....
-			jobCtrl.Unlock()
-			continue
-		}
-
-		addnums := cfg.MultiThreaded - len(jobCtrl.downs)
-		for i := 0 ; i < addnums; i++ {
-			if len(jobCtrl.queue) == 0 {
-				break
+		now := time.Now()
+		cfg := KeepCfgGet()
+		if cfg.Mode == 0 {
+			if TimeEqual(now, cfg.Time) {
+				jobReserverToQueue(cfg)
 			}
-
-			addJob := <- jobCtrl.queue
-			jobCtrl.downs = append(jobCtrl.downs, addJob)
-
-			go jobRunning(addJob)
+		} else if cfg.Mode == 1 {
+			if TimeEqual(now, cfg.Time) && cfg.Week[int(now.Weekday())] {
+				jobReserverToQueue(cfg)
+			}
+		} else if cfg.Mode == 2 {
+			if DateEqual(now, cfg.Time) {
+				jobReserverToQueue(cfg)
+			}
 		}
+
 		jobCtrl.Unlock()
+	}
+}
+
+func jobSchedOnce()  {
+	cfg := BaseSettingGet()
+
+	jobCtrl.Lock()
+	defer jobCtrl.Unlock()
+
+	if cfg.MultiThreaded == len(jobCtrl.downs) {
+		return
+	}
+
+	if cfg.MultiThreaded < len(jobCtrl.downs) {
+		// shutdown....
+		return
+	}
+
+	addnums := cfg.MultiThreaded - len(jobCtrl.downs)
+	for i := 0 ; i < addnums; i++ {
+		if len(jobCtrl.queue) == 0 {
+			break
+		}
+		addJob := <- jobCtrl.queue
+		if addJob.Status == STATUS_DEL {
+			continue
+		}
+		jobCtrl.downs = append(jobCtrl.downs, addJob)
+		go jobRunning(addJob)
+	}
+}
+
+func jobSchedTask() {
+	for  {
+		time.Sleep(time.Second)
+		jobSchedOnce()
 	}
 }
 
 func jobConsoleShow()  {
 	for  {
 		jobSyncToConsole()
-		jobSync()
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -291,6 +389,11 @@ func jobSync()  {
 	}
 }
 
+func jobToQueue(job *Job)  {
+	logs.Info("add %s job to queue", job.Timestamp)
+	jobCtrl.queue <- job
+}
+
 func jobLoad() error {
 	file := fmt.Sprintf("%s\\job.json", appDataDir())
 	value, err := ioutil.ReadFile(file)
@@ -313,7 +416,7 @@ func jobLoad() error {
 
 	for _, v := range jobCtrl.cache {
 		if v.Finished == false && v.Reserve == false {
-			jobCtrl.queue <- v
+			jobToQueue(v)
 		}
 	}
 
@@ -332,6 +435,7 @@ func JobInit() error {
 		return err
 	}
 
+	go jobReserverTask()
 	go jobSchedTask()
 	go jobConsoleShow()
 

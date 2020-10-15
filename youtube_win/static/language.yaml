@@ -273,7 +273,7 @@
   - Updating...
   - 更新中...
   - 更新中...
-  - 更新中...
+  - 更新...
   - 업데이트...
   - Mise à jour...
   - Aktualisierung...
@@ -1022,166 +1022,186 @@
   value:
   - Time Now
   - 当前时间
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 當前時間
+  - 現在の時刻
+  - 현재 시간
+  - heure actuelle
+  - aktuelle Uhrzeit
+  - tiempo actual
 - key: downloaddir
   value:
   - Download Dir
   - 下载目录
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 下載目錄
+  - カタログをダウンロード
+  - 카탈로그 다운로드
+  - Télécharger le catalogue
+  - Katalog herunterladen
+  - Descargar catalogo
 - key: inputdirectory
   value:
   - Please enter a valid directory
   - 请输入合法的目录地址
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 請輸入合法的目錄地址
+  - 有効なディレクトリアドレスを入力してください
+  - 유효한 디렉토리 주소를 입력하십시오
+  - Veuillez saisir une adresse d'annuaire valide
+  - Bitte geben Sie eine gültige Verzeichnisadresse ein
+  - Ingrese una dirección de directorio válida
 - key: directorynotexist
   value:
   - Directory does not exist
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 目录不存在
+  - 目錄不存在
+  - ディレクトリが存在しません
+  - 디렉토리가 없습니다.
+  - Le répertoire n’existe pas
+  - Verzeichnis existiert nicht
+  - El directorio no existe
 - key: selectdownloaddir
   value:
   - Select DownLoad Dir
   - 下载目录
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 下載目錄
+  - カタログをダウンロード
+  - 카탈로그 다운로드
+  - Télécharger le catalogue
+  - Katalog herunterladen
+  - Descargar catalogo
 - key: downloadsetting
   value:
   - Download Setting
   - 下载设置
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 下載設置
+  - 設定をダウンロードする
+  - 설정 다운로드
+  - Télécharger les paramètres
+  - Einstellungen herunterladen
+  - Configuración de descarga
 - key: speedlimit
   value:
   - Speed limit
   - 限速
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 限速
+  - 速度制限
+  - 속도 제한
+  - Limite de vitesse
+  - Geschwindigkeitsbegrenzung
+  - Límite de velocidad
 - key: multithreaded
   value:
   - Multi Threaded
   - 多线程
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 多線程
+  - マルチスレッド
+  - 멀티 스레딩
+  - Multithreading
+  - Multithreading
+  - Multihilo
 - key: settingtime
   value:
   - Setting Fixed Time
   - 设置固定时间
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 設置固定時間
+  - 固定時間を設定する
+  - 고정 시간 설정
+  - Définir une heure fixe
+  - Feste Zeit einstellen
+  - Establecer tiempo fijo
 - key: downloadlinklist
   value:
   - Download Link List
   - 下载地址列表
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 下載地址列表
+  - アドレスリストをダウンロード
+  - 주소 목록 다운로드
+  - Télécharger la liste d'adresses
+  - Adressliste herunterladen
+  - Descargar lista de direcciones
 - key: downloadoptions
   value:
   - Download multiple options
   - 下载复选项
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 下載複選項
+  - 複数のオプションをダウンロードする
+  - 여러 옵션 다운로드
+  - Télécharger plusieurs options
+  - Laden Sie mehrere Optionen herunter
+  - Descarga múltiples opciones
 - key: statusdone
   value:
   - Select Done
   - 选择完成
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 選擇完成
+  - 完全を選択
+  - 선택 완료
+  - Sélectionnez terminé
+  - Wählen Sie abgeschlossen
+  - Seleccionar completo
 - key: statusstop
   value:
   - Select Stop
   - 选择停止
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 選擇停止
+  - 停止を選択
+  - 정류장 선택
+  - Choisissez un arrêt
+  - Wählen Sie Stopp
+  - Elija parada
 - key: all
   value:
   - Select All
   - 选择全部
-  - 选择全部
-  - すべて
-  - 모두
-  - tout
-  - alle
-  - todos
+  - 選擇全部
+  - すべて選択
+  - 모두 선택
+  - Tout sélectionner
+  - Wählen Sie Alle
+  - Seleccionar todo
 - key: statusload
   value:
   - Select Loading
   - 选择下载中
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 選擇下載中
+  - ダウンロードを選択
+  - 다운로드 선택
+  - Sélectionnez le téléchargement
+  - Wählen Sie Download
+  - Seleccionar descarga
 - key: deletefile
   value:
-  - 
+  - Also Delete Files
   - 同时删除文件
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 同時刪除文件
+  - ファイルも削除します
+  - 파일도 삭제
+  - Supprimer également les fichiers
+  - Löschen Sie auch Dateien
+  - También eliminar archivos
 - key: deleteconfirm
   value:
-  - 
+  - Delete Task List
   - 删除任务清单
+  - 刪除任務清單
+  - タスクリストを削除する
+  - 할 일 목록 삭제
+  - Supprimer la liste des tâches
+  - Aufgabenliste löschen
+  - Eliminar lista de tareas
+- key: batchaddfail
+  value:
+  - 
+  - 请输入合法的地址列表
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: batchaddurl
+  value:
+  - 
+  - 添加失败
   - 
   - 
   - 

@@ -107,6 +107,7 @@ const (
 	STATUS_WAIT = "wait"
 	STATUS_LOAD = "loading"
 	STATUS_RESV = "reserver"
+	STATUS_DEL  = "delete"
 )
 
 func StatusToIcon(status string) walk.Image {

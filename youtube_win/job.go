@@ -27,6 +27,28 @@ type VideoDownload struct {
 	outputDir string
 }
 
+func WebVideoGet(client *youtube.Client, weburl string) (*youtube.Video, error) {
+	var err error
+	var video *youtube.Video
+
+	for i := 0; i < 5; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		video, err = client.GetVideoContext(ctx, weburl)
+		cancel()
+		if err != nil {
+			logs.Error(err.Error())
+			continue
+		}
+	}
+
+	if err != nil {
+		logs.Error(err.Error())
+		return nil, err
+	}
+
+	return video, nil
+}
+
 func NewVideoDownload(video *youtube.Video, weburl string, outputDir string, itagNos []int) (*VideoDownload, error) {
 	err := TouchDir(outputDir)
 	if err != nil {
@@ -46,15 +68,7 @@ func NewVideoDownload(video *youtube.Video, weburl string, outputDir string, ita
 	}
 
 	if video == nil {
-		for i:=0; i<5; i++ {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			video, err = vdl.client.GetVideoContext(ctx, weburl)
-			cancel()
-			if err != nil {
-				logs.Error(err.Error())
-				continue
-			}
-		}
+		video, err = WebVideoGet(vdl.client, weburl)
 		if err != nil {
 			logs.Error(err.Error())
 			return nil, err
@@ -94,7 +108,7 @@ func videoInfomationSave(vdl *VideoDownload)  {
 		logs.Error(err.Error())
 		return
 	}
-	filepath := fmt.Sprintf("%s\\video_info.yaml", vdl.outputDir)
+	filepath := fmt.Sprintf("%s\\info.txt", vdl.outputDir)
 	err = SaveToFile(filepath, value)
 	if err != nil {
 		logs.Error(err.Error())
@@ -196,6 +210,4 @@ func (vdl *VideoDownload)Stop() {
 			logs.Error(err.Error())
 		}
 	}
-	vdl.Wait()
 }
-

@@ -79,7 +79,6 @@ func (d *DownLoad)Cancel() error {
 		return nil
 	}
 	d.cancelfunc()
-	d.Wait()
 	return d.err
 }
 

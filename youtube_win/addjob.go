@@ -326,6 +326,7 @@ func addJobToTask(v *VideoModel) error {
 func AddJobOnce()  {
 	var dlg *walk.Dialog
 	var acceptPB, cancelPB *walk.PushButton
+	var addBut, cancelBut *walk.PushButton
 
 	video := NewVideoMode()
 
@@ -373,17 +374,28 @@ func AddJobOnce()  {
 				},
 				Children: []Widget{
 					PushButton{
+						AssignTo: &addBut,
 						Text: LangValue("add"),
 						OnClicked: func() {
-							err := addJobToTask(video)
-							if err != nil {
-								ErrorBoxAction(dlg, err.Error())
-								return
-							}
-							dlg.Accept()
+							addBut.SetEnabled(false)
+							cancelBut.SetEnabled(false)
+
+							go func() {
+								err := addJobToTask(video)
+
+								addBut.SetEnabled(true)
+								cancelBut.SetEnabled(true)
+
+								if err != nil {
+									ErrorBoxAction(dlg, err.Error())
+									return
+								}
+								dlg.Accept()
+							}()
 						},
 					},
 					PushButton{
+						AssignTo: &cancelBut,
 						Text: LangValue("cancel"),
 						OnClicked: func() {
 							dlg.Cancel()

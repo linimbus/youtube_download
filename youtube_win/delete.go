@@ -45,6 +45,7 @@ func DeleteDiaglog(list []string)  {
 						Text: LangValue("deletefile"),
 						OnClicked: func() {
 							deleteBut.SetChecked(!deleteFile)
+							deleteFile = !deleteFile
 						},
 					},
 				},
