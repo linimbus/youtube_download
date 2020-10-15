@@ -20,19 +20,22 @@ type DownLoad struct {
 }
 
 func (d *DownLoad)downloadCopy(dest io.WriteCloser, src io.ReadCloser)  {
-	var buffer [4096]byte
+	var buffer [8192]byte
+
 	for  {
 		cnt, err1 := src.Read(buffer[:])
 		if cnt > 0 {
 			atomic.AddInt64(&d.savesize, int64(cnt))
 			err2 := WriteFull(dest, buffer[:cnt])
 			if err2 != nil {
-				d.err = err2
-				break
+				logs.Error(err2.Error())
 			}
 		}
+
 		if err1 != nil {
-			d.err = err1
+			if err1 != io.EOF {
+				d.err = err1
+			}
 			break
 		}
 	}
@@ -66,9 +69,9 @@ func NewDownLoad(client * youtube.Client, video * youtube.Video, format * youtub
 	return dl, nil
 }
 
-func (d *DownLoad)WaitDone()  {
+func (d *DownLoad)WaitDone() error {
 	d.Wait()
-	logs.Info("download wait success")
+	return d.err
 }
 
 func (d *DownLoad)Cancel() error {

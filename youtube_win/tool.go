@@ -46,14 +46,14 @@ func ToolBarInit() ToolBar {
 					DeleteDiaglog(list)
 				},
 			},
-			Action{
-				Text: LangValue("start"),
-				Image: ICON_TOOL_PLAY,
-			},
-			Action{
-				Text: LangValue("stop"),
-				Image: ICON_TOOL_STOP,
-			},
+			//Action{
+			//	Text: LangValue("start"),
+			//	Image: ICON_TOOL_PLAY,
+			//},
+			//Action{
+			//	Text: LangValue("stop"),
+			//	Image: ICON_TOOL_STOP,
+			//},
 			Action{
 				Text: LangValue("setting"),
 				Image: ICON_TOOL_SETTING,

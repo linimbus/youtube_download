@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
@@ -49,14 +50,41 @@ func parseFrom(link string) string {
 	return urls.Hostname()
 }
 
+func videoContentLangthGet(video *youtube.Video, format *youtube.Format) int64 {
+	for i:=0; i<5; i++ {
+		httpclient, err := HttpClientGet(HttpProxyGet())
+		if err != nil {
+			logs.Error(err.Error())
+			continue
+		}
+		client := &youtube.Client{HTTPClient: httpclient.cli}
+		context, cancelfunc := context.WithTimeout(context.Background(), 5 * time.Second)
+		rsp, err := client.GetStreamContext(context, video, format)
+		cancelfunc()
+		if err != nil {
+			logs.Error(err.Error())
+			continue
+		}
+		defer rsp.Body.Close()
+		return rsp.ContentLength
+	}
+	return 50*1024*1024
+}
+
 func videoTotalSize(video *youtube.Video, itagno []int) int64 {
 	var size int64
 	for _, itag := range itagno {
 		for _, format := range video.Formats {
-			if format.ItagNo == itag {
-				size += int64(StringToInt(format.ContentLength))
-				break
+			if format.ItagNo != itag {
+				continue
 			}
+			length := StringToInt(format.ContentLength)
+			if length == 0 {
+				size += videoContentLangthGet(video, &format)
+			} else {
+				size += int64(length)
+			}
+			break
 		}
 	}
 	return size
@@ -128,6 +156,9 @@ func job2Item(i int, job *Job) *JobItem {
 func JobDelete(list []string, file bool) error {
 	jobCtrl.Lock()
 	defer jobCtrl.Unlock()
+
+	// to stop downs
+	// to remove queue
 
 	for _, v := range list {
 		for i, job := range jobCtrl.cache {

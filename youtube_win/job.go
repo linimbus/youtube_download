@@ -22,7 +22,6 @@ type VideoDownload struct {
 
 	savesize  int64
 	lastsize  int64
-	totalszie int64
 
 	shutdown  bool
 	outputDir string
@@ -47,10 +46,15 @@ func NewVideoDownload(video *youtube.Video, weburl string, outputDir string, ita
 	}
 
 	if video == nil {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		video, err = vdl.client.GetVideoContext(ctx, weburl)
-		cancel()
-
+		for i:=0; i<5; i++ {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			video, err = vdl.client.GetVideoContext(ctx, weburl)
+			cancel()
+			if err != nil {
+				logs.Error(err.Error())
+				continue
+			}
+		}
 		if err != nil {
 			logs.Error(err.Error())
 			return nil, err
@@ -85,8 +89,6 @@ type VideoInfo struct {
 }
 
 func videoInfomationSave(vdl *VideoDownload)  {
-
-
 	value, err := yaml.Marshal(vdl.video)
 	if err != nil {
 		logs.Error(err.Error())
@@ -111,11 +113,9 @@ func FormatToFileName(f *youtube.Format) string {
 	formatType := values[0]
 
 	if strings.ToLower(formatType) == "audio" {
-		return fmt.Sprintf("%s_%s.%s",
-			formatType, f.Quality, suffix)
+		return fmt.Sprintf("audio.m4a")
 	} else {
-		return fmt.Sprintf("%s_%s[%dp].%s",
-			formatType, f.Quality, f.Height, suffix)
+		return fmt.Sprintf("%s[%dp].%s", formatType, f.Height, suffix)
 	}
 }
 
@@ -132,21 +132,29 @@ func (vdl *VideoDownload)downLoader() {
 		filename := FormatToFileName(&format)
 		filepath := fmt.Sprintf("%s\\%s", vdl.outputDir, filename)
 
-		file, err := os.Create(filepath)
-		if err != nil {
-			logs.Error(err.Error())
-			continue
-		}
+		for i := 0; i < 5; i++ {
+			file, err := os.Create(filepath)
+			if err != nil {
+				logs.Error(err.Error())
+				continue
+			}
 
-		dl, err := NewDownLoad(vdl.client, vdl.video, &format, file)
-		if err != nil {
-			logs.Error(err.Error())
-			continue
-		}
-		vdl.download = dl
+			dl, err := NewDownLoad(vdl.client, vdl.video, &format, file)
+			if err != nil {
+				logs.Error(err.Error())
+				continue
+			}
 
-		dl.WaitDone()
-		vdl.totalszie += dl.langth
+			vdl.download = dl
+
+			err = dl.WaitDone()
+			if err != nil {
+				logs.Error(err.Error())
+				continue
+			} else {
+				break
+			}
+		}
 	}
 
 	logs.Info("video download %s finish", vdl.outputDir)
