@@ -127,6 +127,11 @@ func ParseItagnoList(video *youtube.Video, cfg *BatchCfg) []int {
 		}
 	}
 
+	temp := AutioItagNoGet(video.Formats)
+	if temp != -1 {
+		output = append(output, temp)
+	}
+
 	return output
 }
 
