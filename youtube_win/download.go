@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/youtube_download/youtube"
 	"os"
@@ -24,32 +25,33 @@ type DownLoadSlice struct {
 }
 
 type DownLoadMulti struct {
+	sync.Mutex
+
 	video  * youtube.Video
 	format * youtube.Format
 	client * youtube.Client
 
-	sliceRecv  chan *DownLoadSlice
-	filestatus *DownLoadFile
+	slicecache []*DownLoadSlice
+	filestatus   *DownLoadFile
 
-	cancel      chan struct{}
-	finish      chan struct{}
+	cancel    bool
+	finish    chan struct{}
 
 	file     *os.File
 	close     bool
 }
 
-const SLICE_SIZE = 128*1024
+const SLICE_SIZE = 64*1024
 
-func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup, sem *SemPV, offset int64, size int64) {
+func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup, rsp *DownLoadSlice, offset int64, size int64, timeout int) {
 	defer wg.Done()
-	defer sem.SemV()
 
 	for {
 		if d.close {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout) * time.Second)
 		body, err := d.client.GetSliceStreamContext(ctx, d.video, d.format, offset, size)
 		cancel()
 		if err != nil {
@@ -57,88 +59,86 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup, sem *SemPV, offset int6
 			continue
 		}
 
-		d.sliceRecv <- &DownLoadSlice{body: body, size: size, offset: offset}
+		fmt.Printf("offset: %d, size: %d, body: %d\n", offset, size, len(body))
+
+		rsp.body = body
 		return
 	}
 }
 
-func (d *DownLoadMulti)syncfile(cache []*DownLoadSlice) {
+func (d *DownLoadMulti)syncfile() {
+
 retry:
-	for i, v := range cache {
+	for _, v := range d.slicecache {
 		if v.offset != d.filestatus.CurSize {
 			continue
 		}
-		cache = append(cache[:i], cache[i+1:]...)
+
+		if v.body == nil || v.size == 0 {
+			continue
+		}
 
 		d.file.Seek(v.offset, 0)
 		err := WriteFull(d.file, v.body)
 		if err != nil {
 			logs.Error(err.Error())
 		}
+
 		d.file.Sync()
 		d.filestatus.CurSize += v.size
+
+		v.body = nil
+		v.size = 0
+		v.offset = 0
 
 		goto retry
 	}
 }
 
-func (d *DownLoadMulti)downloadRecv(wg *sync.WaitGroup, stop chan struct{})  {
-	defer wg.Done()
-
-	var cache []*DownLoadSlice
-
-	for  {
-		select {
-		case slice := <- d.sliceRecv: {
-			cache = append(cache, slice)
-			d.syncfile(cache)
-		}
-		case <- stop:
-			break
+func (d *DownLoadMulti)sliceNoblock() *DownLoadSlice {
+	for _, v := range d.slicecache {
+		if v.size == 0 {
+			return v
 		}
 	}
-
-	cnt := len(d.sliceRecv)
-
-	for i := 0; i < cnt; i++ {
-		slice := <- d.sliceRecv
-		cache = append(cache, slice)
-		d.syncfile(cache)
-	}
+	return nil
 }
 
 func (d *DownLoadMulti)downloadTask() {
-	stop := make(chan struct{}, 1)
 	wg := new(sync.WaitGroup)
 
-	go d.downloadRecv(wg, stop)
+	curSize := d.filestatus.CurSize
+	totalSize := d.filestatus.TotalSize
 
-	sem := SemInit(10)
-
-	length := d.filestatus.TotalSize - d.filestatus.CurSize
-	sliceCnt := length / SLICE_SIZE
-	sliceEnd := length % SLICE_SIZE
-
-	for i := 0 ; i < int(sliceCnt) ; i++  {
-		offset := int64(i*SLICE_SIZE) + d.filestatus.CurSize
-		select {
-			case <- sem.queue: {
-				wg.Add(1)
-				go d.downloadSlice(wg, sem, offset, SLICE_SIZE)
-			}
-			case <- d.cancel: {
+	for offset := curSize; offset < totalSize; {
+		slicesize := int64(SLICE_SIZE)
+		if offset + slicesize > totalSize {
+			slicesize = totalSize - offset
+		}
+		for  {
+			if d.cancel {
 				goto shutdown
 			}
+			node := d.sliceNoblock()
+			if node == nil {
+				d.syncfile()
+				time.Sleep(50 * time.Millisecond)
+				continue
+			}
+			node.offset = offset
+			node.size = slicesize
+			node.body = nil
+			wg.Add(1)
+			go d.downloadSlice(wg, node, offset, slicesize, 10)
+			break
 		}
+		offset += slicesize
 	}
-	wg.Add(1)
-	go d.downloadSlice(wg, sem, sliceCnt*SLICE_SIZE, sliceEnd)
 
 shutdown:
-	d.close = true
-	stop <- struct{}{}
 
 	wg.Wait()
+	d.syncfile()
 
 	if d.filestatus.CurSize == d.filestatus.TotalSize {
 		d.filestatus.Finished = true
@@ -210,13 +210,16 @@ func NewDownLoadMulti(client * youtube.Client,
 	}
 
 	dl := new(DownLoadMulti)
-	dl.cancel = make(chan struct{}, 10)
 	dl.format = format
 	dl.client = client
 	dl.video = video
 	dl.filestatus = file
 	dl.file = fd
-	dl.sliceRecv = make(chan *DownLoadSlice, 20)
+	dl.slicecache = make([]*DownLoadSlice, 20)
+	for i, _ := range dl.slicecache {
+		dl.slicecache[i] = &DownLoadSlice{}
+	}
+
 	dl.finish = make(chan struct{}, 10)
 
 	go dl.downloadTask()
@@ -229,7 +232,7 @@ func (d *DownLoadMulti)Finish() chan struct{}{
 }
 
 func (d *DownLoadMulti)Cancel() {
-	d.cancel <- struct{}{}
+	d.cancel = true
 }
 
 func (d *DownLoadMulti)Stat() (int64, int64){
