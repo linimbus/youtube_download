@@ -58,8 +58,6 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup, rsp *DownLoadSlice, off
 			continue
 		}
 
-		//fmt.Printf("offset: %d, size: %d, body: %d\n", offset, size, len(body))
-
 		rsp.body = body
 		return
 	}
@@ -106,14 +104,17 @@ func (d *DownLoadMulti)sliceNoblock() *DownLoadSlice {
 func (d *DownLoadMulti)downloadTask() {
 	wg := new(sync.WaitGroup)
 
+	step := 10
+
 	curSize := d.filestatus.CurSize
 	totalSize := d.filestatus.TotalSize
 
 	for offset := curSize; offset < totalSize; {
-		slicesize := int64(SLICE_SIZE)
+		slicesize := int64(SLICE_SIZE * step)
 		if offset + slicesize > totalSize {
 			slicesize = totalSize - offset
 		}
+
 		for  {
 			if d.cancel {
 				goto shutdown
@@ -121,7 +122,7 @@ func (d *DownLoadMulti)downloadTask() {
 			node := d.sliceNoblock()
 			if node == nil {
 				d.syncfile()
-				time.Sleep(50 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				continue
 			}
 			node.offset = offset
