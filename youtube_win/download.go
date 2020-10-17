@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/youtube_download/youtube"
 	"os"
@@ -59,7 +58,7 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup, rsp *DownLoadSlice, off
 			continue
 		}
 
-		fmt.Printf("offset: %d, size: %d, body: %d\n", offset, size, len(body))
+		//fmt.Printf("offset: %d, size: %d, body: %d\n", offset, size, len(body))
 
 		rsp.body = body
 		return
