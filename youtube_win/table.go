@@ -14,7 +14,7 @@ type JobItem struct {
 	Title        string
 	ProgressRate int
 	Speed        int
-	Size         int
+	Size         int64
 	From         string
 	Status       string
 
@@ -52,7 +52,7 @@ func (n *JobModel)Value(row, col int) interface{} {
 		}
 		return fmt.Sprintf("%s/s", ByteViewLite(int64(item.Speed)))
 	case 4:
-		return ByteView(int64(item.Size))
+		return ByteView(item.Size)
 	case 5:
 		return item.From
 	case 6:

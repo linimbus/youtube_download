@@ -170,7 +170,7 @@ func DownLoadFileInit(file *DownLoadFile) (*os.File, error) {
 		file.CurSize = 0
 	}
 
-	fd, err := os.Open(file.Filepath)
+	fd, err := os.OpenFile(file.Filepath, os.O_RDWR, 0644)
 	if err != nil {
 		logs.Error(err.Error())
 		return nil, err

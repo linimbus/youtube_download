@@ -67,8 +67,8 @@ func StringCat(s string, flag string) string {
 	return s[:idx]
 }
 
-func StringToInt(s string) int {
-	num, err := strconv.Atoi(s)
+func StringToInt(s string) int64 {
+	num, err := strconv.ParseInt(s, 0, 64)
 	if err != nil {
 		logs.Error("string[%s] to int fail, %s",s , err.Error())
 		return 0

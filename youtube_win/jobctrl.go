@@ -196,6 +196,12 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 	job.Author = video.Author
 	job.Tilte = video.Title
 
+	var sumsize int64
+	for _, v := range job.FileList {
+		sumsize += v.CurSize
+	}
+	job.lastSize = sumsize
+
 	jobCtrl.Lock()
 	jobCtrl.cache = append(jobCtrl.cache, job)
 	if !reserve {
@@ -233,7 +239,7 @@ func job2Item(i int, job *Job) *JobItem {
 		Title: job.Timestamp,
 		ProgressRate: int(rate),
 		Speed: int(speed * 8)/2,
-		Size: int(job.TotalSize),
+		Size: job.TotalSize,
 		From: job.From,
 		Status: job.Status,
 		outputDir: job.OutputDir,
@@ -344,13 +350,6 @@ func jobRunning(job *Job)  {
 	}
 
 	logs.Info("video download task add: %s", job.WebUrl)
-
-	var sumsize int64
-	for _, v := range job.FileList {
-		sumsize += v.CurSize
-	}
-
-	job.lastSize = sumsize
 
 	job.Status = STATUS_LOAD
 	job.download.WaitDone()
@@ -510,6 +509,12 @@ func jobLoad() error {
 
 	for _, v := range output {
 		temp := v
+		var sumsize int64
+		for _, v := range v.FileList {
+			sumsize += v.CurSize
+		}
+		temp.lastSize = sumsize
+
 		jobCtrl.cache = append(jobCtrl.cache, &temp)
 	}
 

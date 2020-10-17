@@ -229,8 +229,6 @@ func SemInit(v int) *SemPV {
 	return sm
 }
 
-
-
 func init()  {
 	mathrand.Seed(time.Now().Unix())
 }

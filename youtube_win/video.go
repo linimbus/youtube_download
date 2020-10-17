@@ -18,7 +18,7 @@ type VideoFormat struct {
 	FPS          int
 	Width        int
 	Height       int
-	Length       int
+	Length       int64
 
 	checked      bool
 }

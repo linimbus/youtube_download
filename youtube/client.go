@@ -81,7 +81,7 @@ func (c *Client) GetStreamURLContext(ctx context.Context, video *Video, format *
 }
 
 func (c *Client)GetStreamContextLangth(ctx context.Context, video *Video, format *Format) (int64, error) {
-	length, err := strconv.Atoi(format.ContentLength)
+	length, err := strconv.ParseInt(format.ContentLength, 0, 64)
 	if err == nil {
 		return int64(length), nil
 	}
