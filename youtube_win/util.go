@@ -208,6 +208,29 @@ func TouchDir(dir string) error {
 	return nil
 }
 
+type SemPV struct {
+	queue chan struct{}
+}
+
+func (sm *SemPV)SemP()  {
+	<- sm.queue
+}
+
+func (sm *SemPV)SemV()  {
+	sm.queue <- struct{}{}
+}
+
+func SemInit(v int) *SemPV {
+	sm := new(SemPV)
+	sm.queue = make(chan struct{}, v+1)
+	for i:=0; i<v; i++ {
+		sm.queue <- struct{}{}
+	}
+	return sm
+}
+
+
+
 func init()  {
 	mathrand.Seed(time.Now().Unix())
 }

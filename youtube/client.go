@@ -3,9 +3,11 @@ package youtube
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // Client offers methods to download video metadata and video streams.
@@ -76,6 +78,56 @@ func (c *Client) GetStreamURLContext(ctx context.Context, video *Video, format *
 	}
 
 	return c.decipherURL(ctx, video.ID, cipher)
+}
+
+func (c *Client)GetStreamContextLangth(ctx context.Context, video *Video, format *Format) (int64, error) {
+	length, err := strconv.Atoi(format.ContentLength)
+	if err == nil {
+		return int64(length), nil
+	}
+	rsp, err := c.GetStreamContext(ctx, video, format)
+	if err != nil {
+		return 0, err
+	}
+	defer rsp.Body.Close()
+
+	format.ContentLength = fmt.Sprintf("%d", rsp.ContentLength)
+	return rsp.ContentLength, nil
+}
+
+func GetSliceUrls(urls string, offset, size int64) string {
+	urls = fmt.Sprintf("%s?range=%d-%d", urls, offset, offset + size - 1)
+	return urls
+}
+
+func (c *Client) GetSliceStreamContext(ctx context.Context, video *Video, format *Format, offset, size int64) ([]byte, error) {
+	urls, err := c.GetStreamURLContext(ctx, video, format)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.HttpGet(ctx, GetSliceUrls(urls, offset, size))
+	if err != nil {
+		return nil, err
+	}
+	if len(body) == int(size) {
+		return body, nil
+	}
+
+	return body, fmt.Errorf("slice stream rsponse body [%d != %d]", len(body), size )
+}
+
+func (c *Client) HttpGet(ctx context.Context, url string) ([]byte, error)  {
+	rsp, err := c.httpGet(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	values, err := ioutil.ReadAll(rsp.Body)
+	if err != nil && err != io.EOF {
+		return nil, err
+	}
+	return values, nil
 }
 
 // httpGet does a HTTP GET request, checks the response to be a 200 OK and returns it

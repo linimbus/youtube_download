@@ -40,7 +40,7 @@ func VideoInfoGet(link string, dir string) (*youtube.Video, error) {
 
 	var video *youtube.Video
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 5; i++ {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
 		video, err = dl.GetVideoContext(ctx, link)
 		cancel()
