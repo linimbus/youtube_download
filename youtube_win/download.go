@@ -55,7 +55,8 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 	for {
 		req, exist := <- d.slicereq
 		if exist == false {
-			break
+			logs.Info("download slice task exit")
+			return
 		}
 
 		var body []byte
@@ -68,6 +69,10 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 				break
 			}
 			logs.Error(err.Error())
+			if d.cancel {
+				logs.Info("download slice task exit")
+				return
+			}
 		}
 
 		d.slicecache <- &DownLoadSlice{body: body, offset: req.offset, size: req.size}
@@ -82,8 +87,10 @@ func (d *DownLoadMulti)downloadRecv(wg *sync.WaitGroup)  {
 	for  {
 		slice, exist := <- d.slicecache
 		if exist == false {
-			break
+			logs.Info("download slice recv exit")
+			return
 		}
+
 		atomic.AddInt64(&d.recvflow, slice.size)
 		sliceList = append(sliceList, slice)
 
@@ -139,6 +146,7 @@ func (d *DownLoadMulti)downloadTask() {
 
 		d.slicereq <- &DownLoadReq{offset: offset, size: slicesize}
 		if d.cancel {
+			logs.Info("download task cancel")
 			goto shutdown
 		}
 
