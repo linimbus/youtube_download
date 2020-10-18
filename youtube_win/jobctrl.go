@@ -83,7 +83,7 @@ type Job struct {
 	OutputDir   string
 	FileList    []DownLoadFile
 
-	lastSize    int64
+	flowSize    int64
 
 	TotalSize   int64
 	Status      string
@@ -196,12 +196,6 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 	job.Author = video.Author
 	job.Tilte = video.Title
 
-	var sumsize int64
-	for _, v := range job.FileList {
-		sumsize += v.CurSize
-	}
-	job.lastSize = sumsize
-
 	jobCtrl.Lock()
 	jobCtrl.cache = append(jobCtrl.cache, job)
 	if !reserve {
@@ -223,8 +217,18 @@ func job2Item(i int, job *Job) *JobItem {
 		sumsize += v.CurSize
 	}
 
-	speed = sumsize - job.lastSize
-	job.lastSize = sumsize
+	var flowsize int64
+	dl := job.download
+	if dl != nil {
+		flowsize = dl.Flow()
+	}
+
+	if job.flowSize > flowsize {
+		speed = flowsize
+	} else {
+		speed = flowsize - job.flowSize
+	}
+	job.flowSize = flowsize
 
 	rate := int64(100)
 	if !job.Finished {
@@ -509,12 +513,6 @@ func jobLoad() error {
 
 	for _, v := range output {
 		temp := v
-		var sumsize int64
-		for _, v := range v.FileList {
-			sumsize += v.CurSize
-		}
-		temp.lastSize = sumsize
-
 		jobCtrl.cache = append(jobCtrl.cache, &temp)
 	}
 

@@ -6,6 +6,7 @@ import (
 	"github.com/lixiangyun/youtube_download/youtube"
 	"os"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -23,91 +24,112 @@ type DownLoadSlice struct {
 	size   int64
 }
 
-type DownLoadMulti struct {
-	sync.Mutex
+type DownLoadReq struct {
+	offset int64
+	size   int64
+}
 
+type DownLoadMulti struct {
 	video  * youtube.Video
 	format * youtube.Format
 	client * youtube.Client
 
-	slicecache []*DownLoadSlice
+	slicereq   chan *DownLoadReq
+	slicecache chan *DownLoadSlice
+
 	filestatus   *DownLoadFile
 
+	recvflow  int64
+	timeout   int
 	cancel    bool
 	finish    chan struct{}
 
 	file     *os.File
-	close     bool
 }
 
 const SLICE_SIZE = 64*1024
 
-func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup, rsp *DownLoadSlice, offset int64, size int64, timeout int) {
+func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for {
-		if d.close {
-			return
+		req, exist := <- d.slicereq
+		if exist == false {
+			break
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout) * time.Second)
-		body, err := d.client.GetSliceStreamContext(ctx, d.video, d.format, offset, size)
-		cancel()
-		if err != nil {
+		var body []byte
+		var err error
+		for  {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(d.timeout) * time.Second)
+			body, err = d.client.GetSliceStreamContext(ctx, d.video, d.format, req.offset, req.size)
+			cancel()
+			if err == nil {
+				break
+			}
 			logs.Error(err.Error())
-			continue
 		}
 
-		rsp.body = body
-		return
+		d.slicecache <- &DownLoadSlice{body: body, offset: req.offset, size: req.size}
 	}
 }
 
-func (d *DownLoadMulti)syncfile() {
+func (d *DownLoadMulti)downloadRecv(wg *sync.WaitGroup)  {
+	defer wg.Done()
 
+	var sliceList []*DownLoadSlice
+
+	for  {
+		slice, exist := <- d.slicecache
+		if exist == false {
+			break
+		}
+		atomic.AddInt64(&d.recvflow, slice.size)
+		sliceList = append(sliceList, slice)
+
+		sliceList = syncfile(sliceList, d.filestatus, d.file)
+	}
+}
+
+func syncfile(cache []*DownLoadSlice, file *DownLoadFile, fd *os.File) []*DownLoadSlice {
 retry:
-	for _, v := range d.slicecache {
-		if v.offset != d.filestatus.CurSize {
-			continue
-		}
 
-		if v.body == nil || v.size == 0 {
-			continue
-		}
+	for i, v := range cache {
+		if v.offset == file.CurSize {
+			cache = append(cache[:i], cache[i+1:]...)
 
-		d.file.Seek(v.offset, 0)
-		err := WriteFull(d.file, v.body)
-		if err != nil {
-			logs.Error(err.Error())
-		}
+			fd.Seek(v.offset, 0)
+			err := WriteFull(fd, v.body)
+			if err != nil {
+				logs.Error(err.Error())
+			}
+			fd.Sync()
+			file.CurSize += v.size
 
-		d.file.Sync()
-		d.filestatus.CurSize += v.size
-
-		v.body = nil
-		v.size = 0
-		v.offset = 0
-
-		goto retry
-	}
-}
-
-func (d *DownLoadMulti)sliceNoblock() *DownLoadSlice {
-	for _, v := range d.slicecache {
-		if v.size == 0 {
-			return v
+			goto retry
 		}
 	}
-	return nil
+
+	return cache
 }
 
 func (d *DownLoadMulti)downloadTask() {
 	wg := new(sync.WaitGroup)
+	wg2 := new(sync.WaitGroup)
 
 	step := 10
+	d.timeout = step * 5
 
 	curSize := d.filestatus.CurSize
 	totalSize := d.filestatus.TotalSize
+
+	for i:=0; i < 5; i++ {
+		wg.Add(1)
+		go d.downloadSlice(wg)
+	}
+
+	wg2.Add(1)
+	go d.downloadRecv(wg2)
 
 	for offset := curSize; offset < totalSize; {
 		slicesize := int64(SLICE_SIZE * step)
@@ -115,38 +137,27 @@ func (d *DownLoadMulti)downloadTask() {
 			slicesize = totalSize - offset
 		}
 
-		for  {
-			if d.cancel {
-				goto shutdown
-			}
-			node := d.sliceNoblock()
-			if node == nil {
-				d.syncfile()
-				time.Sleep(100 * time.Millisecond)
-				continue
-			}
-			node.offset = offset
-			node.size = slicesize
-			node.body = nil
-			wg.Add(1)
-			go d.downloadSlice(wg, node, offset, slicesize, 10)
-			break
+		d.slicereq <- &DownLoadReq{offset: offset, size: slicesize}
+		if d.cancel {
+			goto shutdown
 		}
+
 		offset += slicesize
 	}
 
 shutdown:
-
+	close(d.slicereq)
 	wg.Wait()
-	d.syncfile()
+
+	close(d.slicecache)
+	wg2.Wait()
 
 	if d.filestatus.CurSize == d.filestatus.TotalSize {
 		d.filestatus.Finished = true
 	}
 
-	logs.Info("download task close")
-
 	d.finish <- struct{}{}
+	logs.Info("download task close")
 }
 
 func DownLoadFileInit(file *DownLoadFile) (*os.File, error) {
@@ -215,10 +226,8 @@ func NewDownLoadMulti(client * youtube.Client,
 	dl.video = video
 	dl.filestatus = file
 	dl.file = fd
-	dl.slicecache = make([]*DownLoadSlice, 20)
-	for i, _ := range dl.slicecache {
-		dl.slicecache[i] = &DownLoadSlice{}
-	}
+	dl.slicereq   = make(chan *DownLoadReq, 10)
+	dl.slicecache = make(chan *DownLoadSlice, 10)
 
 	dl.finish = make(chan struct{}, 10)
 
@@ -235,6 +244,7 @@ func (d *DownLoadMulti)Cancel() {
 	d.cancel = true
 }
 
-func (d *DownLoadMulti)Stat() (int64, int64){
-	return d.filestatus.CurSize, d.filestatus.TotalSize
+func (d *DownLoadMulti)Flow() (int64){
+	return d.recvflow
 }
+

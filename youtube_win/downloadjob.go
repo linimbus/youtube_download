@@ -15,7 +15,7 @@ type DownloadJob struct {
 	client    *youtube.Client
 	video     *youtube.Video
 	formats   []youtube.Format
-
+	dlmulti   *DownLoadMulti
 	filelist  []DownLoadFile
 }
 
@@ -100,11 +100,9 @@ func (vdl *DownloadJob)downLoaderJob() {
 			continue
 		}
 
-		var dl *DownLoadMulti
 		var err error
-
 		for i := 0 ; i < 5; i++ {
-			dl, err = NewDownLoadMulti(vdl.client, vdl.video, &format, fileInfo)
+			vdl.dlmulti, err = NewDownLoadMulti(vdl.client, vdl.video, &format, fileInfo)
 			if err != nil {
 				logs.Error(err.Error())
 				continue
@@ -113,11 +111,11 @@ func (vdl *DownloadJob)downLoaderJob() {
 		}
 
 		select {
-			case <- dl.Finish(): {
+			case <- vdl.dlmulti.Finish(): {
 				continue
 			}
 			case <- vdl.cancel: {
-				dl.Cancel()
+				vdl.dlmulti.Cancel()
 				break
 			}
 		}
@@ -134,4 +132,12 @@ func (vdl *DownloadJob)WaitDone() {
 func (vdl *DownloadJob)Cancel() {
 	vdl.cancel <- struct{}{}
 	logs.Warn("download job %s cancel", vdl.jobID)
+}
+
+func (vdl *DownloadJob)Flow() int64 {
+	dl := vdl.dlmulti
+	if dl != nil {
+		return dl.Flow()
+	}
+	return 0
 }
