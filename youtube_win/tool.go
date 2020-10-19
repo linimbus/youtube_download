@@ -44,16 +44,35 @@ func ToolBarInit() ToolBar {
 						return
 					}
 					DeleteDiaglog(list)
+					JobTableSelectClean()
 				},
 			},
-			//Action{
-			//	Text: LangValue("start"),
-			//	Image: ICON_TOOL_PLAY,
-			//},
-			//Action{
-			//	Text: LangValue("stop"),
-			//	Image: ICON_TOOL_STOP,
-			//},
+			Action{
+				Text: LangValue("start"),
+				Image: ICON_TOOL_LOADING,
+				OnTriggered: func() {
+					list := JobTableSelectList()
+					if len(list) == 0 {
+						ErrorBoxAction(MainWindowsCtrl(), LangValue("nochoiceobject"))
+						return
+					}
+					JobLoading(list)
+					JobTableSelectClean()
+				},
+			},
+			Action{
+				Text: LangValue("stop"),
+				Image: ICON_TOOL_STOP,
+				OnTriggered: func() {
+					list := JobTableSelectList()
+					if len(list) == 0 {
+						ErrorBoxAction(MainWindowsCtrl(), LangValue("nochoiceobject"))
+						return
+					}
+					JobStop(list)
+					JobTableSelectClean()
+				},
+			},
 			Action{
 				Text: LangValue("setting"),
 				Image: ICON_TOOL_SETTING,

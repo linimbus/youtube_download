@@ -20,6 +20,10 @@ func init()  {
 	flag.IntVar(&port, "port", 18000, "debug pprof http server listen.")
 }
 
+func DebugFlag() bool {
+	return debug
+}
+
 func DebugInit() error {
 	flag.Parse()
 	if !debug {

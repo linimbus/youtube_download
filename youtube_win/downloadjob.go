@@ -44,7 +44,7 @@ func WebVideoGet(client *youtube.Client, weburl string) (*youtube.Video, error) 
 	return video, nil
 }
 
-func NewDownloadJob(jobID string, video *youtube.Video, weburl string, fileList []DownLoadFile) (*DownloadJob, error) {
+func NewDownloadJob(jobID string, weburl string, fileList []DownLoadFile) (*DownloadJob, error) {
 	httpclient, err := HttpClientGet(HttpProxyGet())
 	if err != nil {
 		logs.Error(err.Error())
@@ -56,12 +56,10 @@ func NewDownloadJob(jobID string, video *youtube.Video, weburl string, fileList 
 		HTTPClient: httpclient.cli,
 	}
 
-	if video == nil {
-		video, err = WebVideoGet(vdl.client, weburl)
-		if err != nil {
-			logs.Error(err.Error())
-			return nil, err
-		}
+	video, err := WebVideoGet(vdl.client, weburl)
+	if err != nil {
+		logs.Error(err.Error())
+		return nil, err
 	}
 
 	vdl.video = video
@@ -75,6 +73,7 @@ func NewDownloadJob(jobID string, video *youtube.Video, weburl string, fileList 
 			}
 		}
 	}
+
 	vdl.jobID = jobID
 	vdl.filelist = fileList
 	vdl.cancel = make(chan struct{}, 10)
@@ -110,13 +109,15 @@ func (vdl *DownloadJob)downLoaderJob() {
 			break
 		}
 
-		select {
-			case <- vdl.dlmulti.Finish(): {
-				continue
-			}
-			case <- vdl.cancel: {
-				vdl.dlmulti.Cancel()
-				break
+		if vdl.dlmulti != nil {
+			select {
+				case <- vdl.dlmulti.Finish(): {
+					continue
+				}
+				case <- vdl.cancel: {
+					vdl.dlmulti.Cancel()
+					break
+				}
 			}
 		}
 	}

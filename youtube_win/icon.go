@@ -72,7 +72,7 @@ var ICON_Network_Flow  *walk.Icon
 var ICON_TOOL_ADD      *walk.Icon
 var ICON_TOOL_DEL      *walk.Icon
 var ICON_TOOL_DOWNLOAD *walk.Icon
-var ICON_TOOL_PLAY     *walk.Icon
+var ICON_TOOL_LOADING  *walk.Icon
 var ICON_TOOL_SETTING  *walk.Icon
 var ICON_TOOL_STOP     *walk.Icon
 var ICON_TOOL_RESERVE  *walk.Icon
@@ -103,7 +103,7 @@ func IconInit() error {
 	ICON_TOOL_ADD = IconLoadFromBox("add.ico", ICON_Tool_Size)
 	ICON_TOOL_DEL = IconLoadFromBox("delete.ico", ICON_Tool_Size)
 	ICON_TOOL_DOWNLOAD = IconLoadFromBox("download.ico", ICON_Tool_Size)
-	ICON_TOOL_PLAY = IconLoadFromBox("play.ico", ICON_Tool_Size)
+	ICON_TOOL_LOADING = IconLoadFromBox("loading.ico", ICON_Tool_Size)
 	ICON_TOOL_SETTING = IconLoadFromBox("setting.ico", ICON_Tool_Size)
 	ICON_TOOL_STOP = IconLoadFromBox("stop.ico", ICON_Tool_Size)
 	ICON_TOOL_RESERVE = IconLoadFromBox("reserve.ico", ICON_Tool_Size)

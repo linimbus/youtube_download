@@ -78,7 +78,6 @@ type Job struct {
 
 	Timestamp   string
 	WebUrl      string
-	Reserve     bool
 	From        string
 	OutputDir   string
 	FileList    []DownLoadFile
@@ -87,7 +86,9 @@ type Job struct {
 
 	TotalSize   int64
 	Status      string
-	Finished    bool
+	DeleteFile  bool
+
+	SpeedLast []int64
 
 	Tilte       string
 	Author      string
@@ -148,12 +149,19 @@ func videoFormatFileName(f *youtube.Format) string {
 	}
 }
 
-func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) error {
+func (job *Job)Finished() bool {
+	for _, v := range job.FileList {
+		if !v.Finished {
+			return false
+		}
+	}
+	return true
+}
 
+func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) error {
 	job := new(Job)
 	job.Timestamp = GetTimeStampNumber()
 	job.WebUrl = weburl
-	job.Reserve = reserve
 	job.From = parseFrom(weburl)
 	job.video = video
 	job.OutputDir = fmt.Sprintf("%s\\%s", BaseSettingGet().HomeDir, job.Timestamp)
@@ -201,13 +209,31 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 	if !reserve {
 		jobToQueue(job)
 	}
-	jobSync()
 	jobCtrl.Unlock()
 
 	return nil
 }
 
 var jobCtrl *JobCtrl
+
+func RemainCalc(speed int64, totalsize int64) time.Duration {
+	if speed == 0 {
+		return -1
+	}
+	return time.Second * time.Duration(totalsize / speed)
+}
+
+func (j * Job)SpeedAvg(speed int64) int64 {
+	if len(j.SpeedLast) > 5 {
+		j.SpeedLast = j.SpeedLast[1:]
+	}
+	j.SpeedLast = append(j.SpeedLast, speed)
+	var output int64
+	for _, v := range j.SpeedLast {
+		output += v
+	}
+	return output/int64(len(j.SpeedLast))
+}
 
 func job2Item(i int, job *Job) *JobItem {
 	var speed int64
@@ -230,8 +256,13 @@ func job2Item(i int, job *Job) *JobItem {
 	}
 	job.flowSize = flowsize
 
+	speed = job.SpeedAvg(speed)
+	if job.Status != STATUS_LOAD {
+		speed = 0
+	}
+
 	rate := int64(100)
-	if !job.Finished {
+	if !job.Finished() {
 		rate = (sumsize * 100) / job.TotalSize
 		if rate > 100 {
 			rate = 99
@@ -247,6 +278,7 @@ func job2Item(i int, job *Job) *JobItem {
 		From: job.From,
 		Status: job.Status,
 		outputDir: job.OutputDir,
+		Remaind: RemainCalc(speed, job.TotalSize - sumsize ),
 	}
 }
 
@@ -274,36 +306,68 @@ func RemoveAllFile(path string)  {
 	}
 }
 
-func JobDelete(list []string, file bool) error {
+func JobLoading(list []string)  {
 	jobCtrl.Lock()
 	defer jobCtrl.Unlock()
 
+	logs.Info("job reloading: %v", list)
+
 	for _, v := range list {
-		for i, job := range jobCtrl.downs {
+		for _, job := range jobCtrl.cache {
+			if job.Timestamp == v {
+				if job.Status == STATUS_RESV || job.Status == STATUS_STOP {
+					jobToQueue(job)
+				}
+				break
+			}
+		}
+	}
+}
+
+func JobStop(list []string) {
+	jobCtrl.Lock()
+	defer jobCtrl.Unlock()
+
+	logs.Warn("job stop: %v", list)
+
+	for _, v := range list {
+		for _, job := range jobCtrl.downs {
 			if job.Timestamp == v {
 				dl := job.download
 				if dl != nil {
 					dl.Cancel()
 				}
-				jobCtrl.downs = append(jobCtrl.downs[:i], jobCtrl.downs[i+1:]...)
 				break
 			}
 		}
 	}
+}
+
+func JobDelete(list []string, file bool) error {
+	jobCtrl.Lock()
+	defer jobCtrl.Unlock()
+
+	logs.Warn("job delete: %v, with delete file", list)
 
 	for _, v := range list {
 		for i, job := range jobCtrl.cache {
 			if job.Timestamp == v {
-				if file {
-					RemoveAllFile(job.OutputDir)
+				dl := job.download
+				if dl != nil {
+					job.DeleteFile = true
+					job.Status = STATUS_DEL
+
+					dl.Cancel()
+				} else {
+					if file {
+						RemoveAllFile(job.OutputDir)
+					}
 				}
-				job.Status = STATUS_DEL
 				jobCtrl.cache = append(jobCtrl.cache[:i], jobCtrl.cache[i+1:]...)
 				break
 			}
 		}
 	}
-	jobSync()
 
 	logs.Info("job %v delete success", list)
 
@@ -335,38 +399,41 @@ func jobSyncToConsole()  {
 func jobRunning(job *Job)  {
 	defer func() {
 		jobCtrl.Lock()
-		for i, v := range jobCtrl.downs {
-			if v == job {
-				jobCtrl.downs = append(jobCtrl.downs[:i], jobCtrl.downs[i+1:]...)
-				break
-			}
-		}
-		jobSync()
+		jobRemoveDowningList(job)
 		jobCtrl.Unlock()
 	}()
 
 	var err error
-	job.download, err = NewDownloadJob(job.Timestamp, job.video, job.WebUrl, job.FileList )
+	job.download, err = NewDownloadJob(job.Timestamp, job.WebUrl, job.FileList )
 	if err != nil {
 		logs.Error(err.Error())
 		job.Status = STATUS_STOP
 		return
 	}
 
-	logs.Info("video download task add: %s", job.WebUrl)
+	logs.Info("video download task running: %s", job.WebUrl)
 
 	job.Status = STATUS_LOAD
 	job.download.WaitDone()
 
+	if job.Status == STATUS_DEL {
+		if job.DeleteFile {
+			RemoveAllFile(job.OutputDir)
+		}
+		logs.Info("video download task delete: %s", job.WebUrl)
+		return
+	}
+
 	for _, v := range job.FileList {
 		if !v.Finished {
 			job.Status = STATUS_STOP
+			logs.Info("video download task stop: %s", job.WebUrl)
 			return
 		}
 	}
 
 	job.Status = STATUS_DONE
-	job.Finished = true
+	logs.Info("video download task done: %s", job.WebUrl)
 }
 
 func TimeEqual(t1 time.Time, t2 time.Time) bool {
@@ -391,19 +458,17 @@ func DateEqual(t1 time.Time, t2 time.Time) bool {
 }
 
 func jobReserverToQueue(cfg *KeepCfg)  {
-	logs.Info("keep timeout %v", cfg)
-
+	logs.Info("job reserver to queue %v", cfg)
 	for _, v := range jobCtrl.cache {
-		if !v.Finished && v.Reserve {
+		if v.Status == STATUS_RESV {
 			jobToQueue(v)
-			v.Reserve = false
 		}
 	}
 }
 
 func jobReserverTask()  {
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(15 * time.Second)
 
 		jobCtrl.Lock()
 
@@ -427,6 +492,28 @@ func jobReserverTask()  {
 	}
 }
 
+func jobToDowningList(job *Job)  {
+	jobCtrl.downs = append(jobCtrl.downs, job)
+}
+
+func jobRemoveDowningList(job *Job)  {
+	for i, v := range jobCtrl.downs {
+		if v == job {
+			jobCtrl.downs = append(jobCtrl.downs[:i], jobCtrl.downs[i+1:]...)
+			return
+		}
+	}
+}
+
+func jobLastDowningList(num int) []string {
+	length := len(jobCtrl.downs)
+	var output []string
+	for _,v := range jobCtrl.downs[length-num:] {
+		output = append(output, v.Timestamp)
+	}
+	return output
+}
+
 func jobSchedOnce()  {
 	cfg := BaseSettingGet()
 
@@ -438,7 +525,8 @@ func jobSchedOnce()  {
 	}
 
 	if cfg.MultiThreaded < len(jobCtrl.downs) {
-		// shutdown....
+		list := jobLastDowningList( len(jobCtrl.downs) - cfg.MultiThreaded)
+		go JobStop(list)
 		return
 	}
 
@@ -448,10 +536,10 @@ func jobSchedOnce()  {
 			break
 		}
 		addJob := <- jobCtrl.queue
-		if addJob.Status == STATUS_DEL {
+		if addJob.Status != STATUS_WAIT {
 			continue
 		}
-		jobCtrl.downs = append(jobCtrl.downs, addJob)
+		jobToDowningList(addJob)
 		go jobRunning(addJob)
 	}
 }
@@ -493,6 +581,7 @@ func jobSync()  {
 
 func jobToQueue(job *Job)  {
 	logs.Info("add %s job to queue", job.Timestamp)
+	job.Status = STATUS_WAIT
 	jobCtrl.queue <- job
 }
 
@@ -507,8 +596,8 @@ func jobLoad() error {
 	var output []Job
 	err = json.Unmarshal(value, &output)
 	if err != nil {
-		logs.Error(err.Error())
-		return err
+		logs.Error("parse job config fail, %s", err.Error())
+		return nil
 	}
 
 	for _, v := range output {
@@ -517,7 +606,7 @@ func jobLoad() error {
 	}
 
 	for _, v := range jobCtrl.cache {
-		if v.Finished == false && v.Reserve == false {
+		if !v.Finished() && v.Status != STATUS_RESV {
 			jobToQueue(v)
 		}
 	}

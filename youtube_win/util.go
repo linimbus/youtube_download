@@ -133,10 +133,19 @@ func LogInit() error {
 	if err != nil {
 		return err
 	}
-	err = logs.SetLogger(logs.AdapterFile, string(value))
+
+	if DebugFlag() {
+		err = logs.SetLogger(logs.AdapterConsole)
+	} else {
+		err = logs.SetLogger(logs.AdapterFile, string(value))
+	}
+
 	if err != nil {
 		return err
 	}
+
+	logs.EnableFuncCallDepth(true)
+	logs.SetLogFuncCallDepth(3)
 	return nil
 }
 

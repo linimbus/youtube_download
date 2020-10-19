@@ -7,6 +7,7 @@ import (
 	. "github.com/lxn/walk/declarative"
 	"sort"
 	"sync"
+	"time"
 )
 
 type JobItem struct {
@@ -17,6 +18,7 @@ type JobItem struct {
 	Size         int64
 	From         string
 	Status       string
+	Remaind      time.Duration
 
 	outputDir    string
 	checked      bool
@@ -52,10 +54,15 @@ func (n *JobModel)Value(row, col int) interface{} {
 		}
 		return fmt.Sprintf("%s/s", ByteViewLite(int64(item.Speed)))
 	case 4:
-		return ByteView(item.Size)
+		if item.Remaind == -1 {
+			return "-"
+		}
+		return fmt.Sprintf("%v", item.Remaind)
 	case 5:
-		return item.From
+		return ByteView(item.Size)
 	case 6:
+		return item.From
+	case 7:
 		return item.Status
 	}
 	panic("unexpected col")
@@ -90,10 +97,12 @@ func (m *JobModel) Sort(col int, order walk.SortOrder) error {
 		case 3:
 			return c(a.Speed < b.Speed)
 		case 4:
-			return c(a.Size < b.Size)
+			return c(a.Remaind < b.Remaind)
 		case 5:
-			return c(a.From < b.From)
+			return c(a.Size < b.Size)
 		case 6:
+			return c(a.From < b.From)
+		case 7:
 			return c(a.Status < b.Status)
 		}
 		panic("unreachable")
@@ -162,6 +171,18 @@ func JobDir(idx int) string {
 	}
 
 	return ""
+}
+
+func JobTableSelectClean()  {
+	jobTable.Lock()
+	defer jobTable.Unlock()
+
+	for _, v := range jobTable.items {
+		v.checked = false
+	}
+
+	jobTable.PublishRowsReset()
+	jobTable.Sort(jobTable.sortColumn, jobTable.sortOrder)
 }
 
 func JobTableSelectAll()  {
@@ -254,9 +275,10 @@ func TableWight() []Widget {
 			},
 			Columns: []TableViewColumn{
 				{Title: "#", Width: 30},
-				{Title: LangValue("title"), Width: 160},
-				{Title: LangValue("progressrate"), Width: 120},
-				{Title: LangValue("speed"), Width: 80},
+				{Title: LangValue("jobid"), Width: 120},
+				{Title: LangValue("progressrate"), Width: 100},
+				{Title: LangValue("speed"), Width: 60},
+				{Title: LangValue("remaind"), Width: 60},
 				{Title: LangValue("size"), Width: 80},
 				{Title: LangValue("from"), Width: 120},
 				{Title: LangValue("status"), Width: 80},
@@ -285,7 +307,7 @@ func TableWight() []Widget {
 
 						canvas.DrawText(fmt.Sprintf("%d%%", item.ProgressRate), tableView.Font(), 0, bounds2, walk.TextLeft)
 					}
-				case 6:
+				case 7:
 					style.Image = StatusToIcon(item.Status)
 				}
 			},

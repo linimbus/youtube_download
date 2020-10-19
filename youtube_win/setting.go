@@ -15,34 +15,44 @@ type BaseSetting struct {
 	MultiThreaded int
 }
 
-func BaseSettingGet() *BaseSetting {
-	value := DataStringValueGet("basesetting")
-	if value != "" {
-		var out BaseSetting
-		err := json.Unmarshal([]byte(value), &out)
-		if err != nil {
-			logs.Error(err.Error())
-		} else {
-			return &out
+var baseSettingCache *BaseSetting
+
+func BaseSettingGet() BaseSetting {
+	if baseSettingCache == nil {
+		value := DataStringValueGet("basesetting")
+		if value != "" {
+			var out BaseSetting
+			err := json.Unmarshal([]byte(value), &out)
+			if err != nil {
+				logs.Error(err.Error())
+			} else {
+				baseSettingCache = &out
+				return out
+			}
+		}
+		return BaseSetting{
+			HomeDir: defaultVideoDir(),
+			Speed: 0, MultiThreaded: 10,
 		}
 	}
-	return &BaseSetting{
-		HomeDir: defaultVideoDir(),
-		Speed: 0, MultiThreaded: 10,
-	}
+	return *baseSettingCache
 }
 
-func BaseSettingSet(cfg *BaseSetting) error  {
+func BaseSettingSet(cfg BaseSetting) error  {
 	value, err := json.Marshal(cfg)
 	if err != nil {
 		logs.Error(err.Error())
 		return err
 	}
+
 	err = DataStringValueSet("basesetting", string(value))
 	if err != nil {
 		logs.Error(err.Error())
 		return err
 	}
+
+	baseSettingCache = &cfg
+
 	return nil
 }
 

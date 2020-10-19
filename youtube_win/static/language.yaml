@@ -1190,7 +1190,7 @@
   - Eliminar lista de tareas
 - key: batchaddfail
   value:
-  - 
+  - Please enter a list of legal addresses
   - 请输入合法的地址列表
   - 
   - 
@@ -1200,8 +1200,28 @@
   - 
 - key: batchaddurl
   value:
-  - 
+  - Batch Add Fail
   - 添加失败
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: remaind
+  value:
+  - Remaind
+  - 剩余时间
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- key: jobid
+  value:
+  - Job ID
+  - 任务ID
   - 
   - 
   - 

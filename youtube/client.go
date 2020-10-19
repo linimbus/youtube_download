@@ -77,7 +77,12 @@ func (c *Client) GetStreamURLContext(ctx context.Context, video *Video, format *
 		return "", ErrCipherNotFound
 	}
 
-	return c.decipherURL(ctx, video.ID, cipher)
+	url, err := c.decipherURL(ctx, video.ID, cipher)
+	if url != "" && err == nil {
+		format.URL = url
+	}
+
+	return url, err
 }
 
 func (c *Client)GetStreamContextLangth(ctx context.Context, video *Video, format *Format) (int64, error) {
