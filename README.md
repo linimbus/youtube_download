@@ -1,5 +1,8 @@
 # Free Youtube downloader
 
+[English](./README.md)
+[中文](./README_ZH_CN.md) 
+
 ## Features
 - Support multi thread download
 - Support scheduled download of appointment
@@ -44,3 +47,13 @@
 ## Download settings
 - Provide the default download directory, the number of concurrent download tasks; and bandwidth limit(Not currently supported);
 ![](./docs/007.PNG)
+
+### Give me a coffee;
+
+### [paypal.me](https://paypal.me/lixiangyun)
+
+### Alipay
+![](./youtube_win/static/sponsor1.jpg)
+
+### Wechat Pay 
+![](./youtube_win/static/sponsor2.jpg)
