@@ -91,7 +91,7 @@ func MainWindowStart() error {
 
 func mainWindowBuilder(mw **walk.MainWindow) *MainWindow {
 	return &MainWindow{
-		Title:   "YouTube Downloader",
+		Title:   "Free Youtube Downloader " + VersionGet(),
 		Icon: ICON_Main,
 		AssignTo: mw,
 		MinSize: Size{mainWindowWidth, mainWindowHeight-1},
