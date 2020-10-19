@@ -21,7 +21,7 @@
 ## Language settings
 - Support English, Chinese, Japanese, Korean, French, Spanish, German
 
-![](./docs/002.PNG)
+![](./docs/002.png)
 
 ## Proxy settings
 - Support HTTP, HTTPS, SOCK5 proxy protocol, support authentication
