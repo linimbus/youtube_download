@@ -112,24 +112,25 @@ func parseFrom(link string) string {
 	return urls.Hostname()
 }
 
-func videoContentLangthGet(video *youtube.Video, format *youtube.Format) int64 {
+func videoContentLangthGet(video *youtube.Video, format *youtube.Format) (int64,error) {
 	httpclient, err := HttpClientGet(HttpProxyGet())
 	if err != nil {
 		logs.Error(err.Error())
-		return 0
+		return 0, err
 	}
+	var length int64
 	client := &youtube.Client{HTTPClient: httpclient.cli}
-	for i:=0; i<5; i++ {
-		ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
-		length, err := client.GetStreamContextLangth(ctx, video, format)
+	for i :=0 ; i < 5; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 15 * time.Second)
+		length, err = client.GetStreamContextLangth(ctx, video, format)
 		cancel()
 		if err != nil {
 			logs.Error(err.Error())
 			continue
 		}
-		return length
+		return length, nil
 	}
-	return 0
+	return 0, err
 }
 
 func videoFormatFileName(f *youtube.Format) string {
@@ -178,12 +179,16 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 	for _, v := range itagno {
 		for _, format := range video.Formats {
 			if v == format.ItagNo {
-				contentLength := videoContentLangthGet(video, &format)
+				contentLength, err := videoContentLangthGet(video, &format)
+				if err != nil {
+					return err
+				}
 				totalSize += contentLength
 				fileList = append(fileList, DownLoadFile{
 					ItagNo: v,
 					TotalSize: contentLength,
-					Filepath: fmt.Sprintf("%s\\%s", job.OutputDir, videoFormatFileName(&format)),
+					Filepath: fmt.Sprintf("%s\\%s", job.OutputDir,
+						videoFormatFileName(&format)),
 				})
 			}
 		}
