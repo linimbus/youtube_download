@@ -1192,39 +1192,39 @@
   value:
   - Please enter a list of legal addresses
   - 请输入合法的地址列表
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 請輸入合法的地址列表
+  - 正式な住所のリストを入力してください
+  - 법적 주소 목록을 입력하십시오
+  - Veuillez saisir une liste d'adresses légales
+  - Bitte geben Sie eine Liste der gesetzlichen Adressen ein
+  - Ingrese una lista de direcciones legales
 - key: batchaddurl
   value:
   - Batch Add Fail
   - 添加失败
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 添加失敗
+  - 追加に失敗しました
+  - 추가 실패
+  - Ajouter a échoué
+  - Hinzufügen fehlgeschlagen
+  - agregar fallado
 - key: remaind
   value:
   - Remaind
   - 剩余时间
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 剩餘時間
+  - 残り時間
+  - 남은 시간
+  - Temps restant
+  - Übrige Zeit
+  - Tiempo restante
 - key: jobid
   value:
   - Job ID
   - 任务ID
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - 任務ID
+  - タスクID
+  - 작업 ID
+  - ID de tâche
+  - Aufgaben-ID
+  - ID de tarea
