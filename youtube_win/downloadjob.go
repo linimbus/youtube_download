@@ -10,6 +10,7 @@ import (
 type DownloadJob struct {
 	close      chan struct{}
 	cancel     chan struct{}
+	cancelFlag bool
 
 	jobID      string
 	client    *youtube.Client
@@ -88,6 +89,10 @@ func (vdl *DownloadJob)downLoaderJob() {
 	logs.Info("download job %s start", vdl.jobID)
 
 	for _, format := range vdl.formats {
+		if vdl.cancelFlag {
+			break
+		}
+
 		var fileInfo *DownLoadFile
 		for i, v := range vdl.filelist {
 			if v.ItagNo == format.ItagNo {
@@ -121,6 +126,7 @@ func (vdl *DownloadJob)downLoaderJob() {
 			}
 		}
 	}
+
 	logs.Info("download job %s close", vdl.jobID)
 	vdl.close <- struct {}{}
 }
@@ -132,6 +138,7 @@ func (vdl *DownloadJob)WaitDone() {
 
 func (vdl *DownloadJob)Cancel() {
 	vdl.cancel <- struct{}{}
+	vdl.cancelFlag = true
 	logs.Warn("download job %s cancel", vdl.jobID)
 }
 

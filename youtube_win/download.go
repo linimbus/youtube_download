@@ -70,7 +70,6 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 				break
 			}
 			logs.Error(err.Error())
-			atomic.AddInt64(&d.except, 1)
 		}
 
 		d.slicecache <- &DownLoadSlice{body: body, offset: req.offset, size: req.size}
