@@ -40,8 +40,8 @@ func VideoInfoGet(link string, dir string) (*youtube.Video, error) {
 
 	var video *youtube.Video
 
-	for i := 0; i < 5; i++ {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
+	for i := 0; i < 3; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second * 15)
 		video, err = dl.GetVideoContext(ctx, link)
 		cancel()
 		if err != nil {
@@ -144,6 +144,8 @@ func WebUrlInput(dlg **walk.Dialog, video *VideoModel) []Widget {
 				}
 				time.Sleep(100*time.Millisecond)
 			}
+
+			time.Sleep(200*time.Millisecond)
 
 			err := UpdateAction(input.Text(), update, video)
 			if err != nil {
