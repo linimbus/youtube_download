@@ -83,6 +83,10 @@ func Setting()  {
 	cfg := BaseSettingGet()
 	oldDir := cfg.HomeDir
 
+	if cfg.Speed > 100 {
+		cfg.Speed = 100
+	}
+
 	cnt, err := Dialog{
 		AssignTo: &dlg,
 		Title: LangValue("basesetting"),
@@ -151,14 +155,14 @@ func Setting()  {
 								SpinButtonsVisible: true,
 								Value: float64(cfg.Speed),
 								MinValue: float64(0),
-								MaxValue: float64(1000),
-								Suffix: " MB/s",
+								MaxValue: float64(100),
+								Suffix: " Mb/s",
 								OnValueChanged: func() {
 									cfg.Speed = int(speed.Value())
 								},
 							},
 							Label{
-								Text: LangValue("speedlimit") + "[0-1000]",
+								Text: LangValue("speedlimit") + "[0-100]",
 							},
 							HSpacer{
 								MaxSize: Size{Width: 10},

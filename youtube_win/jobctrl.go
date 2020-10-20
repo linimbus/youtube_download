@@ -399,6 +399,7 @@ func jobSyncToConsole()  {
 
 	JobTalbeUpdate(output)
 	UpdateStatusFlow(speed)
+	jobTotalSpeedSet(speed)
 }
 
 func jobRunning(job *Job)  {
@@ -619,6 +620,45 @@ func jobLoad() error {
 	return nil
 }
 
+var jobTotalSpeed int
+
+func jobTotalSpeedSet(speed int)  {
+	jobTotalSpeed = speed / (1024*1024)
+}
+
+func jobSpeedAbs(a, b int) int {
+	if a > b {
+		return a-b
+	} else {
+		return b-a
+	}
+}
+
+func jobSpeedLimit()  {
+	for  {
+		time.Sleep(5 * time.Second)
+
+		if jobTotalSpeed == 0 {
+			continue
+		}
+
+		limit := BaseSettingGet().Speed
+		if limit > 0 {
+			diff := jobSpeedAbs(limit, jobTotalSpeed)
+			if ( (diff * 100 / limit) > 15) {
+				if jobTotalSpeed > limit {
+					DownLoadSpeedLimitDelayAdd()
+				} else {
+					DownLoadSpeedLimitDelayDel()
+				}
+				logs.Info("limit speed adjust: %d Mb/s -> %d Mb/s", jobTotalSpeed, limit)
+			}
+		} else {
+			DownLoadSpeedLimitDisable()
+		}
+	}
+}
+
 func JobInit() error {
 	jobCtrl = new(JobCtrl)
 	jobCtrl.cache = make([]*Job, 0)
@@ -634,6 +674,7 @@ func JobInit() error {
 	go jobReserverTask()
 	go jobSchedTask()
 	go jobConsoleShow()
+	go jobSpeedLimit()
 
 	return nil
 }

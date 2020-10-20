@@ -49,6 +49,32 @@ type DownLoadMulti struct {
 
 const SLICE_SIZE = 64*1024
 
+var dlSpeedLimitDelay time.Duration
+
+func DownLoadSpeedLimitDelayAdd()  {
+	dlSpeedLimitDelay++
+	logs.Info("download speed limit delay : %d s", dlSpeedLimitDelay )
+}
+
+func DownLoadSpeedLimitDelayDel()  {
+	if dlSpeedLimitDelay > 0 {
+		dlSpeedLimitDelay--
+	} else {
+		dlSpeedLimitDelay = 0
+	}
+	logs.Info("download speed limit delay : %d s", dlSpeedLimitDelay )
+}
+
+func DownLoadSpeedLimitDisable()  {
+	dlSpeedLimitDelay = 0
+}
+
+func downLoadSpeedLimit()  {
+	if dlSpeedLimitDelay > 0 {
+		time.Sleep(dlSpeedLimitDelay * time.Second)
+	}
+}
+
 func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -63,6 +89,8 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 		var err error
 
 		for {
+			downLoadSpeedLimit()
+
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(d.timeout) * time.Second)
 			body, err = d.client.GetSliceStreamContext(ctx, d.video, d.format, req.offset, req.size)
 			cancel()
