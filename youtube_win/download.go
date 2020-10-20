@@ -62,7 +62,7 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 		var body []byte
 		var err error
 
-		for i := 0 ; i < 30; i++ {
+		for {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(d.timeout) * time.Second)
 			body, err = d.client.GetSliceStreamContext(ctx, d.video, d.format, req.offset, req.size)
 			cancel()
@@ -70,16 +70,7 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 				break
 			}
 			logs.Error(err.Error())
-			if d.cancel {
-				logs.Info("download slice task exit")
-				return
-			}
-		}
-
-		if body == nil && err != nil {
-			d.cancel = true
-			logs.Info("download slice task exception")
-			return
+			atomic.AddInt64(&d.except, 1)
 		}
 
 		d.slicecache <- &DownLoadSlice{body: body, offset: req.offset, size: req.size}
@@ -132,7 +123,7 @@ func (d *DownLoadMulti)downloadTask() {
 	wg2 := new(sync.WaitGroup)
 
 	step := 10
-	d.timeout = step * 5
+	d.timeout = step * 6
 
 	curSize := d.filestatus.CurSize
 	totalSize := d.filestatus.TotalSize

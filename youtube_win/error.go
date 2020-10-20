@@ -21,8 +21,6 @@ func boxAction(from walk.Form, title string, icon *walk.Icon, message string)  {
 		Layout:  VBox{},
 		Children: []Widget{
 			TextLabel{
-				TextAlignment: AlignHNearVCenter,
-				NoPrefix: true,
 				Text: message,
 				MinSize: Size{200, 150},
 				MaxSize: Size{300, 200},
