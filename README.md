@@ -45,7 +45,7 @@
 ![](./docs/006.PNG)
 
 ## Download settings
-- Provide the default download directory, the number of concurrent download tasks; and bandwidth limit(Not currently supported);
+- Provide the default download directory, the number of concurrent download tasks; and bandwidth limit;
 ![](./docs/007.PNG)
 
 ### Give me a coffee;
