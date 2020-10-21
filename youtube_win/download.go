@@ -98,6 +98,18 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 				break
 			}
 			logs.Error(err.Error())
+			time.Sleep(2 * time.Second)
+
+			if d.cancel {
+				logs.Info("download slice task cancel")
+				for  {
+					_,exist := <- d.slicereq
+					if exist == false {
+						break
+					}
+				}
+				return
+			}
 		}
 
 		d.slicecache <- &DownLoadSlice{body: body, offset: req.offset, size: req.size}
