@@ -1,5 +1,7 @@
 # Free Youtube downloader
 
+[![Download Free Youtube Downloader](https://img.shields.io/sourceforge/dm/free-youtube-downloader.svg)](https://sourceforge.net/projects/free-youtube-downloader/files/latest/download)
+
 [English](./README.md)
 [中文](./README_ZH_CN.md) 
 
