@@ -83,12 +83,11 @@ type Job struct {
 	FileList    []DownLoadFile
 
 	flowSize    int64
+	speedLast []int64
 
 	TotalSize   int64
 	Status      string
 	DeleteFile  bool
-
-	SpeedLast []int64
 
 	Tilte       string
 	Author      string
@@ -230,15 +229,15 @@ func RemainCalc(speed int64, totalsize int64) time.Duration {
 }
 
 func (j * Job)SpeedAvg(speed int64) int64 {
-	if len(j.SpeedLast) > 5 {
-		j.SpeedLast = j.SpeedLast[1:]
+	if len(j.speedLast) > 5 {
+		j.speedLast = j.speedLast[1:]
 	}
-	j.SpeedLast = append(j.SpeedLast, speed)
+	j.speedLast = append(j.speedLast, speed)
 	var output int64
-	for _, v := range j.SpeedLast {
+	for _, v := range j.speedLast {
 		output += v
 	}
-	return output/int64(len(j.SpeedLast))
+	return output/int64(len(j.speedLast))
 }
 
 func job2Item(i int, job *Job) *JobItem {
@@ -270,7 +269,7 @@ func job2Item(i int, job *Job) *JobItem {
 	rate := int64(100)
 	if !job.Finished() {
 		rate = (sumsize * 100) / job.TotalSize
-		if rate > 100 {
+		if rate >= 100 {
 			rate = 99
 		}
 	}
@@ -662,7 +661,7 @@ func jobSpeedLimit()  {
 		limit := BaseSettingGet().Speed
 		if limit > 0 {
 			diff := jobSpeedAbs(limit, jobTotalSpeed)
-			if ( (diff * 100 / limit) > 15) {
+			if ( (diff * 100 / limit) > 20) {
 				if jobTotalSpeed > limit {
 					DownLoadSpeedLimitDelayAdd()
 				} else {
@@ -679,7 +678,7 @@ func jobSpeedLimit()  {
 func JobInit() error {
 	jobCtrl = new(JobCtrl)
 	jobCtrl.cache = make([]*Job, 0)
-	jobCtrl.queue = make(chan *Job, 1024)
+	jobCtrl.queue = make(chan *Job, 100)
 	jobCtrl.downs = make([]*Job, 0)
 
 	err := jobLoad()
