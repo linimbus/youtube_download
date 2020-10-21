@@ -214,6 +214,7 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 	if !reserve {
 		jobToQueue(job)
 	}
+	jobSync()
 	jobCtrl.Unlock()
 
 	return nil
@@ -327,6 +328,8 @@ func JobLoading(list []string)  {
 			}
 		}
 	}
+
+	jobSync()
 }
 
 func JobStop(list []string) {
@@ -346,6 +349,8 @@ func JobStop(list []string) {
 			}
 		}
 	}
+
+	jobSync()
 }
 
 func JobDelete(list []string, file bool) error {
@@ -376,6 +381,8 @@ func JobDelete(list []string, file bool) error {
 
 	logs.Info("job %v delete success", list)
 
+	jobSync()
+
 	return nil
 }
 
@@ -389,7 +396,6 @@ func jobSyncToConsole()  {
 			job2Item(i, jobCtrl.cache[maxLen-1-i]),
 		)
 	}
-	jobSync()
 	jobCtrl.Unlock()
 
 	var speed int
@@ -400,6 +406,16 @@ func jobSyncToConsole()  {
 	JobTalbeUpdate(output)
 	UpdateStatusFlow(speed)
 	jobTotalSpeedSet(speed)
+}
+
+func jobSyncToFile()  {
+	for  {
+		time.Sleep(time.Minute)
+
+		jobCtrl.Lock()
+		jobSync()
+		jobCtrl.Unlock()
+	}
 }
 
 func jobRunning(job *Job)  {
@@ -566,7 +582,6 @@ func jobConsoleShow()  {
 
 func jobSync()  {
 	file := fmt.Sprintf("%s\\job.json", appDataDir())
-
 	var output []Job
 	for _, v := range jobCtrl.cache {
 		output = append(output, *v)
@@ -583,6 +598,8 @@ func jobSync()  {
 		logs.Error(err.Error())
 		return
 	}
+
+	logs.Info("job sync to file success!")
 }
 
 func jobToQueue(job *Job)  {
@@ -675,6 +692,7 @@ func JobInit() error {
 	go jobSchedTask()
 	go jobConsoleShow()
 	go jobSpeedLimit()
+	go jobSyncToFile()
 
 	return nil
 }
