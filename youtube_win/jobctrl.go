@@ -331,6 +331,27 @@ func JobLoading(list []string)  {
 	jobSync()
 }
 
+func JobReserver(list []string) {
+	jobCtrl.Lock()
+	defer jobCtrl.Unlock()
+
+	logs.Warn("job reserver: %v", list)
+
+	for _, v := range list {
+		for _, job := range jobCtrl.cache {
+			if job.Timestamp == v {
+				dl := job.download
+				if dl != nil {
+					dl.Cancel()
+				}
+				job.Status = STATUS_RESV
+			}
+		}
+	}
+
+	jobSync()
+}
+
 func JobStop(list []string) {
 	jobCtrl.Lock()
 	defer jobCtrl.Unlock()
@@ -442,6 +463,11 @@ func jobRunning(job *Job)  {
 			RemoveAllFile(job.OutputDir)
 		}
 		logs.Info("video download task delete: %s", job.WebUrl)
+		return
+	}
+
+	if job.Status == STATUS_RESV {
+		logs.Info("video download task reserver: %s", job.WebUrl)
 		return
 	}
 

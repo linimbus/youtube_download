@@ -74,6 +74,19 @@ func ToolBarInit() ToolBar {
 				},
 			},
 			Action{
+				Text: LangValue("appointmentdownload"),
+				Image: ICON_TOOL_RESERVEDL,
+				OnTriggered: func() {
+					list := JobTableSelectList()
+					if len(list) == 0 {
+						ErrorBoxAction(MainWindowsCtrl(), LangValue("nochoiceobject"))
+						return
+					}
+					JobReserver(list)
+					JobTableSelectClean()
+				},
+			},
+			Action{
 				Text: LangValue("setting"),
 				Image: ICON_TOOL_SETTING,
 				OnTriggered: func() {

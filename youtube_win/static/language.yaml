@@ -558,26 +558,6 @@
   - Veuillez confirmer
   - bitte bestätigen
   - Confirmar
-- key: start
-  value:
-  - Start
-  - 启动服务
-  - 啟動服務
-  - サービス開始
-  - 서비스 시작
-  - Démarrer le service
-  - Dienst starten
-  - Comienzo
-- key: stop
-  value:
-  - Stop
-  - 停止服务
-  - 停止服務
-  - 仕事をやめる
-  - 서비스 중단
-  - Hors service
-  - Außer Betrieb
-  - Detener
 - key: deletesuccess
   value:
   - Delete success
@@ -1208,6 +1188,36 @@
   - Ajouter a échoué
   - Hinzufügen fehlgeschlagen
   - agregar fallado
+- key: appointmentdownload
+  value:
+  - Appointment download
+  - 预约下载
+  - 預約下載
+  - 予定のダウンロード
+  - 약속 다운로드
+  - Téléchargement de rendez-vous
+  - Termin herunterladen
+  - Descarga de cita
+- key: start
+  value:
+  - Start download
+  - 启动下载
+  - 啟動下載
+  - ダウンロード開始
+  - 다운로드를 시작하다
+  - Commencer Le Téléchargement
+  - Starte Download
+  - Comienza a descargar
+- key: stop
+  value:
+  - Stop download
+  - 停止下载
+  - 停止下載
+  - ダウンロードを停止する
+  - 다운로드 중지
+  - Arrêter le téléchargement
+  - Download anhalten
+  - Descarga parada
 - key: remaind
   value:
   - Remaind
