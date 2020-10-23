@@ -43,9 +43,6 @@ func AppExitPreFunc()  {
 		mainWindowCtrl.ctrl = nil
 	}
 	NotifyExit()
-	if err:= recover();err != nil{
-		logs.Error(err)
-	}
 }
 
 func MainWindowsCtrl() *walk.MainWindow {
@@ -53,6 +50,11 @@ func MainWindowsCtrl() *walk.MainWindow {
 }
 
 func MainWindowsExit()  {
+	defer func() {
+		if err := recover(); err != nil {
+			logs.Error(err)
+		}
+	}()
 	CapSignal(AppExitPreFunc)
 	<- mainWindowCtrl.exit
 	AppExitPreFunc()

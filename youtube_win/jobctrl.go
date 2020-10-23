@@ -449,8 +449,7 @@ func jobRunning(job *Job)  {
 	job.download, err = NewDownloadJob(job.Timestamp, job.WebUrl, job.FileList )
 	if err != nil {
 		logs.Error(err.Error())
-		job.Status = STATUS_STOP
-		return
+		goto done
 	}
 
 	logs.Info("video download task running: %s", job.WebUrl)
@@ -458,6 +457,7 @@ func jobRunning(job *Job)  {
 	job.Status = STATUS_LOAD
 	job.download.WaitDone()
 
+done:
 	if job.Status == STATUS_DEL {
 		if job.DeleteFile {
 			RemoveAllFile(job.OutputDir)

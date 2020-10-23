@@ -202,6 +202,8 @@ shutdown:
 	}
 
 	d.finish <- struct{}{}
+	d.file.Close()
+
 	logs.Info("download task close")
 }
 
