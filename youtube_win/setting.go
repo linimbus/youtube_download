@@ -145,7 +145,7 @@ func Setting()  {
 						},
 					},
 					Label{
-						Text: LangValue("downloadsetting") + ":",
+						Text: LangValue("speedlimit") + ":",
 					},
 					Composite{
 						Layout: HBox{MarginsZero: true, Alignment: AlignHNearVNear},
@@ -162,11 +162,16 @@ func Setting()  {
 								},
 							},
 							Label{
-								Text: LangValue("speedlimit") + "[0-100]",
+								Text: "[0-100]",
 							},
-							HSpacer{
-								MaxSize: Size{Width: 10},
-							},
+						},
+					},
+					Label{
+						Text: LangValue("multithreaded") + ":",
+					},
+					Composite{
+						Layout: HBox{MarginsZero: true, Alignment: AlignHNearVNear},
+						Children: []Widget{
 							NumberEdit{
 								AssignTo: &multi,
 								SpinButtonsVisible: true,
@@ -178,7 +183,7 @@ func Setting()  {
 								},
 							},
 							Label{
-								Text: LangValue("multithreaded") + "[1-100]",
+								Text: "[1-100]",
 							},
 						},
 					},

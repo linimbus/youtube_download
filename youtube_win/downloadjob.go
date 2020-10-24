@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/youtube_download/youtube"
 	"time"
@@ -12,10 +13,9 @@ type DownloadJob struct {
 	cancel     chan struct{}
 	cancelFlag bool
 
+	weburl     string
 	jobID      string
-	client    *youtube.Client
-	video     *youtube.Video
-	formats   []youtube.Format
+
 	dlmulti   *DownLoadMulti
 	filelist  []DownLoadFile
 }
@@ -45,72 +45,107 @@ func WebVideoGet(client *youtube.Client, weburl string) (*youtube.Video, error) 
 	return video, nil
 }
 
-func NewDownloadJob(jobID string, weburl string, fileList []DownLoadFile) (*DownloadJob, error) {
+var ErrNoExitItagNo = errors.New("video info itagno not exist!")
+
+func WebDownloadClient() (*youtube.Client, error ) {
 	httpclient, err := HttpClientGet(HttpProxyGet())
 	if err != nil {
 		logs.Error(err.Error())
 		return nil, err
 	}
+	return &youtube.Client{HTTPClient: httpclient.cli}, nil
+}
 
-	vdl := new(DownloadJob)
-	vdl.client = &youtube.Client{
-		HTTPClient: httpclient.cli,
-	}
-
-	video, err := WebVideoGet(vdl.client, weburl)
+func WebVideoInfoGet(client *youtube.Client, weburl string, file *DownLoadFile) (*youtube.Video, *youtube.Format, error) {
+	video, err := WebVideoGet(client, weburl)
 	if err != nil {
 		logs.Error(err.Error())
-		return nil, err
+		return nil, nil, err
 	}
 
-	vdl.video = video
-	vdl.formats = make([]youtube.Format, 0)
-
-	for _, fileinfo := range fileList {
-		for _,format := range video.Formats {
-			if format.ItagNo == fileinfo.ItagNo {
-				vdl.formats = append(vdl.formats, format)
-				break
-			}
+	for _, format := range video.Formats {
+		if format.ItagNo == file.ItagNo {
+			return video, &format, nil
 		}
 	}
 
+	return nil, nil, ErrNoExitItagNo
+}
+
+func NewDownloadJob(jobID string, weburl string, fileList []DownLoadFile) (*DownloadJob, error) {
+	vdl := new(DownloadJob)
 	vdl.jobID = jobID
+	vdl.weburl = weburl
 	vdl.filelist = fileList
 	vdl.cancel = make(chan struct{}, 10)
 	vdl.close = make(chan struct{}, 10)
 
 	go vdl.downLoaderJob()
-
 	return vdl, nil
+}
+
+func (vdl *DownloadJob)downLoadFileGet() *DownLoadFile {
+	for i, _ := range vdl.filelist {
+		file := &vdl.filelist[i]
+		if file.Finished {
+			continue
+		}
+		return file
+	}
+	return nil
 }
 
 func (vdl *DownloadJob)downLoaderJob() {
 	logs.Info("download job %s start", vdl.jobID)
 
-	for _, format := range vdl.formats {
+	for  {
 		if vdl.cancelFlag {
+			logs.Info("download job cancel done")
 			break
 		}
 
-		var fileInfo *DownLoadFile
-		for i, v := range vdl.filelist {
-			if v.ItagNo == format.ItagNo {
-				fileInfo = &vdl.filelist[i]
-			}
+		file := vdl.downLoadFileGet()
+		if file == nil {
+			logs.Info("download job all file done")
+			break
 		}
 
-		if fileInfo.Finished {
-			continue
+		client, err := WebDownloadClient()
+		if err != nil {
+			logs.Error("download download client fail, %s", err.Error())
+			break
 		}
 
-		var err error
+		var video  * youtube.Video
+		var format * youtube.Format
+
 		for i := 0 ; i < 5; i++ {
-			vdl.dlmulti, err = NewDownLoadMulti(vdl.client, vdl.video, &format, fileInfo)
+			video, format, err = WebVideoInfoGet(client, vdl.weburl, file)
 			if err != nil {
 				logs.Error(err.Error())
+				time.Sleep(time.Second * 2)
 				continue
 			}
+			break
+		}
+
+		if err != nil {
+			logs.Info("download job exception close")
+			break
+		}
+
+		for i := 0 ; i < 5; i++ {
+			vdl.dlmulti, err = NewDownLoadMulti(client, video, format, file)
+			if err != nil {
+				logs.Error(err.Error())
+				time.Sleep(time.Second * 2)
+				continue
+			}
+			break
+		}
+
+		if err != nil {
+			logs.Info("download job exception close")
 			break
 		}
 
@@ -125,6 +160,8 @@ func (vdl *DownloadJob)downLoaderJob() {
 				}
 			}
 		}
+
+		time.Sleep(time.Second * 5)
 	}
 
 	logs.Info("download job %s close", vdl.jobID)

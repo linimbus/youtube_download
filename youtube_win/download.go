@@ -88,7 +88,7 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 		var body []byte
 		var err error
 
-		for {
+		for i := 0; i < 30; i++ {
 			downLoadSpeedLimit()
 
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(d.timeout) * time.Second)
@@ -97,6 +97,7 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 			if err == nil {
 				break
 			}
+
 			logs.Error(err.Error())
 			time.Sleep(2 * time.Second)
 
@@ -110,6 +111,18 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 				}
 				return
 			}
+		}
+
+		if body == nil {
+			d.cancel = true
+			logs.Info("download slice task cancel by self")
+			for  {
+				_,exist := <- d.slicereq
+				if exist == false {
+					break
+				}
+			}
+			return
 		}
 
 		d.slicecache <- &DownLoadSlice{body: body, offset: req.offset, size: req.size}
