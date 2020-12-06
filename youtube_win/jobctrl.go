@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -605,6 +606,8 @@ func jobConsoleShow()  {
 	}
 }
 
+var lastCfgContent []byte;
+
 func jobSync()  {
 	file := fmt.Sprintf("%s\\job.json", appDataDir())
 	var output []Job
@@ -618,13 +621,15 @@ func jobSync()  {
 		return
 	}
 
-	err = SaveToFile(file, value)
-	if err != nil {
-		logs.Error(err.Error())
-		return
+	if bytes.Compare(value, lastCfgContent) != 0 {
+		err = SaveToFile(file, value)
+		if err != nil {
+			logs.Error(err.Error())
+			return
+		}
+		lastCfgContent = value;
+		logs.Info("job sync to file success!")
 	}
-
-	logs.Info("job sync to file success!")
 }
 
 func jobToQueue(job *Job)  {

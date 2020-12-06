@@ -98,7 +98,7 @@ func (d *DownLoadMulti)downloadSlice(wg *sync.WaitGroup) {
 				break
 			}
 
-			logs.Error(err.Error())
+			logs.Error("youtube get slice stream fail, %s, %s, %s", d.video.ID, d.format.ItagNo, err.Error())
 			time.Sleep(2 * time.Second)
 
 			if d.cancel {
