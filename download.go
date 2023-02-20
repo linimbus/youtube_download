@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/astaxie/beego/logs"
-	"github.com/kkdai/youtube"
+	"github.com/kkdai/youtube/v2"
 )
 
 type DownLoadFile struct {

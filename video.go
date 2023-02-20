@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kkdai/youtube"
+	"github.com/kkdai/youtube/v2"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 )

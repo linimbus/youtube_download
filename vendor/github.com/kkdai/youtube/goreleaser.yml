@@ -1,9 +1,0 @@
-builds:
-  - main: ./youtubedr
-    binary: youtubedr
-    goos:
-      - windows
-      - darwin
-      - linux
-    goarch:
-      - amd64

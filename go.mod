@@ -5,7 +5,6 @@ go 1.20
 require (
 	github.com/GeertJohan/go.rice v1.0.3
 	github.com/astaxie/beego v1.12.3
-	github.com/kkdai/youtube v1.2.4
 	github.com/kkdai/youtube/v2 v2.7.18
 	github.com/lxn/walk v0.0.0-20210112085537-c389da54e794
 	golang.org/x/net v0.2.0
@@ -21,7 +20,6 @@ require (
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/dop251/goja v0.0.0-20221115122301-6c0d9883792e // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
-	github.com/google/uuid v1.1.1 // indirect
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect

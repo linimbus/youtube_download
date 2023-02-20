@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
-	"github.com/kkdai/youtube"
+	"github.com/kkdai/youtube/v2"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/url"
@@ -17,13 +17,13 @@ import (
 )
 
 type FormatInfo struct {
-	ItagNo    int
-	Url       string
-	MimeType  string
-	Quality   string
-	FPS, Width,  Height int
-	ContentLength string
-	LastModified  string
+	ItagNo             int
+	Url                string
+	MimeType           string
+	Quality            string
+	FPS, Width, Height int
+	ContentLength      string
+	LastModified       string
 }
 
 type VideoInfo struct {
@@ -36,13 +36,13 @@ type VideoInfo struct {
 
 func formatInfoOutput(format youtube.Format) FormatInfo {
 	return FormatInfo{
-		ItagNo: format.ItagNo,
-		Url: format.URL,
+		ItagNo:   format.ItagNo,
+		Url:      format.URL,
 		MimeType: format.MimeType,
-		Quality: format.Quality,
-		FPS: format.FPS, Width: format.Width, Height: format.Height,
+		Quality:  format.Quality,
+		FPS:      format.FPS, Width: format.Width, Height: format.Height,
 		ContentLength: format.ContentLength,
-		LastModified: format.LastModified,
+		LastModified:  format.LastModified,
 	}
 }
 
@@ -52,14 +52,14 @@ func videoInfoOutput(weburl string, v *youtube.Video, formats []youtube.Format) 
 		fmtInfo = append(fmtInfo, formatInfoOutput(v))
 	}
 	return &VideoInfo{WebUrl: weburl,
-		Title: v.Title,
-		Author: v.Author,
+		Title:    v.Title,
+		Author:   v.Author,
 		Duration: v.Duration,
-		Formats: fmtInfo,
+		Formats:  fmtInfo,
 	}
 }
 
-func videoInfomationSave(weburl string, v *youtube.Video, formats []youtube.Format, outputdir string)  {
+func videoInfomationSave(weburl string, v *youtube.Video, formats []youtube.Format, outputdir string) {
 	value, err := yaml.Marshal(videoInfoOutput(weburl, v, formats))
 	if err != nil {
 		logs.Error(err.Error())
@@ -74,25 +74,25 @@ func videoInfomationSave(weburl string, v *youtube.Video, formats []youtube.Form
 }
 
 type Job struct {
-	video       *youtube.Video
-	download    *DownloadJob
+	video    *youtube.Video
+	download *DownloadJob
 
-	Timestamp   string
-	WebUrl      string
-	From        string
-	OutputDir   string
-	FileList    []DownLoadFile
+	Timestamp string
+	WebUrl    string
+	From      string
+	OutputDir string
+	FileList  []DownLoadFile
 
-	flowSize    int64
+	flowSize  int64
 	speedLast []int64
 
-	TotalSize   int64
-	Status      string
-	DeleteFile  bool
+	TotalSize  int64
+	Status     string
+	DeleteFile bool
 
-	Tilte       string
-	Author      string
-	Duration    time.Duration
+	Tilte    string
+	Author   string
+	Duration time.Duration
 }
 
 type JobCtrl struct {
@@ -112,7 +112,7 @@ func parseFrom(link string) string {
 	return urls.Hostname()
 }
 
-func videoContentLangthGet(video *youtube.Video, format *youtube.Format) (int64,error) {
+func videoContentLangthGet(video *youtube.Video, format *youtube.Format) (int64, error) {
 	httpclient, err := HttpClientGet(HttpProxyGet())
 	if err != nil {
 		logs.Error(err.Error())
@@ -120,8 +120,8 @@ func videoContentLangthGet(video *youtube.Video, format *youtube.Format) (int64,
 	}
 	var length int64
 	client := &youtube.Client{HTTPClient: httpclient.cli}
-	for i :=0 ; i < 5; i++ {
-		ctx, cancel := context.WithTimeout(context.Background(), 15 * time.Second)
+	for i := 0; i < 5; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		length, err = client.GetStreamContextLangth(ctx, video, format)
 		cancel()
 		if err != nil {
@@ -135,7 +135,7 @@ func videoContentLangthGet(video *youtube.Video, format *youtube.Format) (int64,
 
 func videoFormatFileName(f *youtube.Format) string {
 	values := strings.Split(f.MimeType, ";")
-	values = strings.Split(values[0],"/")
+	values = strings.Split(values[0], "/")
 
 	var suffix = "mp4"
 	if len(values) == 2 {
@@ -150,7 +150,7 @@ func videoFormatFileName(f *youtube.Format) string {
 	}
 }
 
-func (job *Job)Finished() bool {
+func (job *Job) Finished() bool {
 	for _, v := range job.FileList {
 		if !v.Finished {
 			return false
@@ -185,7 +185,7 @@ func JobAdd(video *youtube.Video, itagno []int, weburl string, reserve bool) err
 				}
 				totalSize += contentLength
 				fileList = append(fileList, DownLoadFile{
-					ItagNo: v,
+					ItagNo:    v,
 					TotalSize: contentLength,
 					Filepath: fmt.Sprintf("%s\\%s", job.OutputDir,
 						videoFormatFileName(&format)),
@@ -226,10 +226,10 @@ func RemainCalc(speed int64, totalsize int64) time.Duration {
 	if speed == 0 {
 		return -1
 	}
-	return time.Second * time.Duration(totalsize / speed)
+	return time.Second * time.Duration(totalsize/speed)
 }
 
-func (j * Job)SpeedAvg(speed int64) int64 {
+func (j *Job) SpeedAvg(speed int64) int64 {
 	if len(j.speedLast) > 5 {
 		j.speedLast = j.speedLast[1:]
 	}
@@ -238,7 +238,7 @@ func (j * Job)SpeedAvg(speed int64) int64 {
 	for _, v := range j.speedLast {
 		output += v
 	}
-	return output/int64(len(j.speedLast))
+	return output / int64(len(j.speedLast))
 }
 
 func job2Item(i int, job *Job) *JobItem {
@@ -276,20 +276,20 @@ func job2Item(i int, job *Job) *JobItem {
 	}
 
 	return &JobItem{
-		Index: i,
-		Title: job.Timestamp,
+		Index:        i,
+		Title:        job.Timestamp,
 		ProgressRate: int(rate),
-		Speed: int(speed * 8)/2,
-		Size: job.TotalSize,
-		From: job.From,
-		Status: job.Status,
-		outputDir: job.OutputDir,
-		Remaind: RemainCalc(speed, job.TotalSize - sumsize ),
+		Speed:        int(speed*8) / 2,
+		Size:         job.TotalSize,
+		From:         job.From,
+		Status:       job.Status,
+		outputDir:    job.OutputDir,
+		Remaind:      RemainCalc(speed, job.TotalSize-sumsize),
 	}
 }
 
-func RemoveAllFile(path string)  {
-	Separator := fmt.Sprintf("%c",os.PathSeparator)
+func RemoveAllFile(path string) {
+	Separator := fmt.Sprintf("%c", os.PathSeparator)
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		logs.Error(err.Error())
@@ -312,7 +312,7 @@ func RemoveAllFile(path string)  {
 	}
 }
 
-func JobLoading(list []string)  {
+func JobLoading(list []string) {
 	jobCtrl.Lock()
 	defer jobCtrl.Unlock()
 
@@ -407,7 +407,7 @@ func JobDelete(list []string, file bool) error {
 	return nil
 }
 
-func jobSyncToConsole()  {
+func jobSyncToConsole() {
 	var output []*JobItem
 
 	jobCtrl.Lock()
@@ -429,8 +429,8 @@ func jobSyncToConsole()  {
 	jobTotalSpeedSet(speed)
 }
 
-func jobSyncToFile()  {
-	for  {
+func jobSyncToFile() {
+	for {
 		time.Sleep(time.Minute)
 
 		jobCtrl.Lock()
@@ -439,7 +439,7 @@ func jobSyncToFile()  {
 	}
 }
 
-func jobRunning(job *Job)  {
+func jobRunning(job *Job) {
 	defer func() {
 		jobCtrl.Lock()
 		jobRemoveDowningList(job)
@@ -447,7 +447,7 @@ func jobRunning(job *Job)  {
 	}()
 
 	var err error
-	job.download, err = NewDownloadJob(job.Timestamp, job.WebUrl, job.FileList )
+	job.download, err = NewDownloadJob(job.Timestamp, job.WebUrl, job.FileList)
 	if err != nil {
 		logs.Error(err.Error())
 		goto done
@@ -505,7 +505,7 @@ func DateEqual(t1 time.Time, t2 time.Time) bool {
 	return t11.Equal(t22)
 }
 
-func jobReserverToQueue(cfg *KeepCfg)  {
+func jobReserverToQueue(cfg *KeepCfg) {
 	logs.Info("job reserver to queue %v", cfg)
 	for _, v := range jobCtrl.cache {
 		if v.Status == STATUS_RESV {
@@ -514,7 +514,7 @@ func jobReserverToQueue(cfg *KeepCfg)  {
 	}
 }
 
-func jobReserverTask()  {
+func jobReserverTask() {
 	for {
 		time.Sleep(15 * time.Second)
 
@@ -540,11 +540,11 @@ func jobReserverTask()  {
 	}
 }
 
-func jobToDowningList(job *Job)  {
+func jobToDowningList(job *Job) {
 	jobCtrl.downs = append(jobCtrl.downs, job)
 }
 
-func jobRemoveDowningList(job *Job)  {
+func jobRemoveDowningList(job *Job) {
 	for i, v := range jobCtrl.downs {
 		if v == job {
 			jobCtrl.downs = append(jobCtrl.downs[:i], jobCtrl.downs[i+1:]...)
@@ -556,13 +556,13 @@ func jobRemoveDowningList(job *Job)  {
 func jobLastDowningList(num int) []string {
 	length := len(jobCtrl.downs)
 	var output []string
-	for _,v := range jobCtrl.downs[length-num:] {
+	for _, v := range jobCtrl.downs[length-num:] {
 		output = append(output, v.Timestamp)
 	}
 	return output
 }
 
-func jobSchedOnce()  {
+func jobSchedOnce() {
 	cfg := BaseSettingGet()
 
 	jobCtrl.Lock()
@@ -573,17 +573,17 @@ func jobSchedOnce()  {
 	}
 
 	if cfg.MultiThreaded < len(jobCtrl.downs) {
-		list := jobLastDowningList( len(jobCtrl.downs) - cfg.MultiThreaded)
+		list := jobLastDowningList(len(jobCtrl.downs) - cfg.MultiThreaded)
 		go JobStop(list)
 		return
 	}
 
 	addnums := cfg.MultiThreaded - len(jobCtrl.downs)
-	for i := 0 ; i < addnums; i++ {
+	for i := 0; i < addnums; i++ {
 		if len(jobCtrl.queue) == 0 {
 			break
 		}
-		addJob := <- jobCtrl.queue
+		addJob := <-jobCtrl.queue
 		if addJob.Status != STATUS_WAIT {
 			continue
 		}
@@ -593,22 +593,22 @@ func jobSchedOnce()  {
 }
 
 func jobSchedTask() {
-	for  {
+	for {
 		time.Sleep(time.Second)
 		jobSchedOnce()
 	}
 }
 
-func jobConsoleShow()  {
-	for  {
+func jobConsoleShow() {
+	for {
 		jobSyncToConsole()
 		time.Sleep(2 * time.Second)
 	}
 }
 
-var lastCfgContent []byte;
+var lastCfgContent []byte
 
-func jobSync()  {
+func jobSync() {
 	file := fmt.Sprintf("%s\\job.json", appDataDir())
 	var output []Job
 	for _, v := range jobCtrl.cache {
@@ -627,12 +627,12 @@ func jobSync()  {
 			logs.Error(err.Error())
 			return
 		}
-		lastCfgContent = value;
+		lastCfgContent = value
 		logs.Info("job sync to file success!")
 	}
 }
 
-func jobToQueue(job *Job)  {
+func jobToQueue(job *Job) {
 	logs.Info("add %s job to queue", job.Timestamp)
 	job.Status = STATUS_WAIT
 	jobCtrl.queue <- job
@@ -669,20 +669,20 @@ func jobLoad() error {
 
 var jobTotalSpeed int
 
-func jobTotalSpeedSet(speed int)  {
-	jobTotalSpeed = speed / (1024*1024)
+func jobTotalSpeedSet(speed int) {
+	jobTotalSpeed = speed / (1024 * 1024)
 }
 
 func jobSpeedAbs(a, b int) int {
 	if a > b {
-		return a-b
+		return a - b
 	} else {
-		return b-a
+		return b - a
 	}
 }
 
-func jobSpeedLimit()  {
-	for  {
+func jobSpeedLimit() {
+	for {
 		time.Sleep(5 * time.Second)
 
 		if jobTotalSpeed == 0 {
@@ -692,7 +692,7 @@ func jobSpeedLimit()  {
 		limit := BaseSettingGet().Speed
 		if limit > 0 {
 			diff := jobSpeedAbs(limit, jobTotalSpeed)
-			if ( (diff * 100 / limit) > 20) {
+			if (diff * 100 / limit) > 20 {
 				if jobTotalSpeed > limit {
 					DownLoadSpeedLimitDelayAdd()
 				} else {
@@ -726,4 +726,3 @@ func JobInit() error {
 
 	return nil
 }
-
