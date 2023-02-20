@@ -17,7 +17,7 @@ type DownloadJob struct {
 	weburl string
 	jobID  string
 
-	dlmulti  *DownLoadMulti
+	dlmulti  *DownLoadTask
 	filelist []DownLoadFile
 }
 
@@ -136,7 +136,7 @@ func (vdl *DownloadJob) downLoaderJob() {
 		}
 
 		for i := 0; i < 5; i++ {
-			vdl.dlmulti, err = NewDownLoadMulti(client, video, format, file)
+			vdl.dlmulti, err = NewDownLoad(client, video, format, file)
 			if err != nil {
 				logs.Error(err.Error())
 				time.Sleep(time.Second * 2)

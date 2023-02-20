@@ -22,7 +22,7 @@ type FormatInfo struct {
 	MimeType           string
 	Quality            string
 	FPS, Width, Height int
-	ContentLength      string
+	ContentLength      int16
 	LastModified       string
 }
 
@@ -41,7 +41,7 @@ func formatInfoOutput(format youtube.Format) FormatInfo {
 		MimeType: format.MimeType,
 		Quality:  format.Quality,
 		FPS:      format.FPS, Width: format.Width, Height: format.Height,
-		ContentLength: format.ContentLength,
+		ContentLength: int16(format.ContentLength),
 		LastModified:  format.LastModified,
 	}
 }
@@ -122,7 +122,7 @@ func videoContentLangthGet(video *youtube.Video, format *youtube.Format) (int64,
 	client := &youtube.Client{HTTPClient: httpclient.cli}
 	for i := 0; i < 5; i++ {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		length, err = client.GetStreamContextLangth(ctx, video, format)
+		_, length, err = client.GetStreamContext(ctx, video, format)
 		cancel()
 		if err != nil {
 			logs.Error(err.Error())
@@ -693,16 +693,9 @@ func jobSpeedLimit() {
 		if limit > 0 {
 			diff := jobSpeedAbs(limit, jobTotalSpeed)
 			if (diff * 100 / limit) > 20 {
-				if jobTotalSpeed > limit {
-					DownLoadSpeedLimitDelayAdd()
-				} else {
-					DownLoadSpeedLimitDelayDel()
-				}
 				logs.Info("limit speed adjust: %d Mb/s -> %d Mb/s", jobTotalSpeed, limit)
 			}
-		} else {
-			DownLoadSpeedLimitDisable()
-		}
+		} 
 	}
 }
 

@@ -136,7 +136,7 @@ func (n *VideoModel) Update(info *youtube.Video) {
 			FPS:      v.FPS,
 			Width:    v.Width,
 			Height:   v.Height,
-			Length:   StringToInt(v.ContentLength),
+			Length:   v.ContentLength,
 		})
 	}
 
